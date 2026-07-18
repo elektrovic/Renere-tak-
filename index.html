@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Renere Tak — Takvask, fasadevask og belegningsstein i Oslo, Asker og Bærum</title>
+<meta name="description" content="Takvask, fasadevask og rens av belegningsstein for boliger, borettslag, sameier og næringsbygg i Oslo, Asker og Bærum. Beregn pris med vår priskalkulator.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F6F1E7; --cream-dark:#E9E1CF; --ink:#1A1A1A; --green:#1E3B2C;
+    --green-dark:#152B20; --gold:#B8893B; --gold-light:#EDD9AE; --wine:#59262F; --paper:#FBF8F1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--cream);font-family:Inter,system-ui,sans-serif;color:var(--ink)}
+  a{color:var(--wine);text-decoration:none}
+  input,textarea,select{font-family:Inter,sans-serif}
+  .serif{font-family:Fraunces,serif}
+  .eyebrow{font-size:11px;letter-spacing:.26em;color:var(--gold);font-weight:600}
+  .navlink{font-size:11px;letter-spacing:.16em;font-weight:500;color:var(--ink)}
+  .navlink:hover{color:var(--gold)}
+  .btn-cta{display:inline-block;padding:15px 34px;background:var(--cream);color:var(--green);font-size:11px;letter-spacing:.2em;font-weight:600;cursor:pointer;border:none}
+  .btn-cta:hover{background:var(--gold);color:var(--paper)}
+  .btn-green{display:inline-block;padding:15px 32px;background:var(--green);color:var(--cream);font-size:11px;letter-spacing:.2em;font-weight:600;cursor:pointer;border:none}
+  .btn-green:hover{background:var(--wine);color:var(--cream)}
+  .lesmer{font-size:11px;letter-spacing:.18em;font-weight:600;color:var(--green);border-bottom:1px solid var(--gold);padding-bottom:4px;width:fit-content}
+  .lesmer:hover{color:var(--gold)}
+  .field{border:none;border-bottom:1px solid rgba(26,26,26,.3);background:transparent;padding:12px 2px;font-size:14px;outline:none;width:100%}
+  .field:focus{border-bottom-color:var(--green)}
+  .chip{padding:9px 18px;border:1px solid rgba(26,26,26,.3);font-size:12px;color:rgba(26,26,26,.7);cursor:pointer;user-select:none}
+  .chip:hover{border-color:var(--green);color:var(--green)}
+  .chip.active{border-color:var(--green);background:var(--green);color:var(--cream)}
+  .opt{display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid rgba(26,26,26,.12);cursor:pointer}
+  .opt input[type=checkbox]{margin-top:3px;width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+  .opt .opt-title{font-size:14px;font-weight:500;color:var(--ink)}
+  .opt .opt-desc{font-size:12.5px;line-height:1.55;color:rgba(26,26,26,.6);margin-top:3px}
+  .opt .opt-price{margin-left:auto;font-family:Fraunces,serif;font-size:14px;color:var(--green);white-space:nowrap;padding-left:12px}
+  .subfield{display:none;padding:10px 0 16px 30px;border-bottom:1px solid rgba(26,26,26,.12)}
+  .subfield.visible{display:block}
+  .subfield label{font-size:10px;letter-spacing:.2em;color:rgba(26,26,26,.55);font-weight:600;display:block;margin-bottom:4px}
+  .subfield input{width:120px}
+  input[type=range]{width:100%;accent-color:var(--green);cursor:pointer}
+  .sumline{display:flex;justify-content:space-between;font-size:13.5px;color:rgba(26,26,26,.75);padding:7px 0}
+  .sumline .v{font-family:Fraunces,serif;color:var(--ink)}
+  @media (max-width:1000px){
+    .grid2,.grid2w,.grid3{grid-template-columns:1fr !important}
+    nav,section,footer{padding-left:24px !important;padding-right:24px !important}
+    .nav-links a:not(.btn-nav){display:none}
+    h1{font-size:44px !important}
+  }
+</style>
+</head>
+<body>
+
+<nav style="display:flex;align-items:center;justify-content:space-between;padding:26px 64px;border-bottom:1px solid rgba(26,26,26,.12);background:var(--cream)">
+  <div style="display:flex;align-items:center;gap:14px">
+    <svg width="34" height="34" viewBox="0 0 120 120"><path d="M 14,46 L 60,14 L 106,46" fill="none" stroke="#B8893B" stroke-width="2.5"></path><text x="60" y="98" text-anchor="middle" style="font-family:Fraunces,serif;font-weight:300;font-size:56px;letter-spacing:.02em" fill="#1A1A1A">RT</text></svg>
+    <div style="width:1px;height:26px;background:rgba(26,26,26,.2)"></div>
+    <div class="serif" style="font-weight:400;font-size:16px;letter-spacing:.3em">RENERE TAK</div>
+  </div>
+  <div class="nav-links" style="display:flex;align-items:center;gap:36px">
+    <a href="#tjenester" class="navlink">TJENESTER</a>
+    <a href="#kalkulator" class="navlink">PRISKALKULATOR</a>
+    <a href="#hvorfor" class="navlink">HVORFOR OSS</a>
+    <a href="#omrade" class="navlink">OMRÅDE</a>
+    <a href="#kontakt" class="btn-nav" style="font-size:11px;letter-spacing:.16em;font-weight:600;color:var(--cream);background:var(--green);padding:12px 24px">BE OM BEFARING</a>
+  </div>
+</nav>
+
+<section style="position:relative;height:680px">
+  <img src="https://images.unsplash.com/photo-1635424710928-0544e8512eae?auto=format&fit=crop&w=2000&q=80" alt="Håndverker sikret med tau under arbeid på tak" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.82)">
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,32,25,.25) 0%,rgba(20,32,25,.55) 78%,rgba(20,32,25,.0) 100%);pointer-events:none"></div>
+  <div style="position:absolute;left:64px;right:64px;bottom:88px;display:flex;flex-direction:column;gap:26px;align-items:flex-start">
+    <div style="display:flex;align-items:center;gap:14px"><div style="width:40px;height:1px;background:var(--gold)"></div><div style="font-size:11px;letter-spacing:.26em;color:var(--gold-light);font-weight:500">UTVENDIG PLEIE AV EIENDOM · OSLO · ASKER · BÆRUM</div></div>
+    <h1 class="serif" style="margin:0;font-weight:300;font-size:64px;line-height:1.12;color:var(--paper);max-width:15ch;text-wrap:pretty">Et velholdt hjem begynner øverst.</h1>
+    <p style="margin:0;font-size:17px;line-height:1.7;color:rgba(251,248,241,.85);max-width:52ch">Takvask, fasadevask og rens av belegningsstein — for boliger, borettslag, sameier og næringsbygg. Utført med presisjon og respekt for eiendommen.</p>
+    <div style="display:flex;gap:14px;flex-wrap:wrap">
+      <a href="#kalkulator" class="btn-cta">BEREGN PRIS</a>
+      <a href="#kontakt" class="btn-cta" style="background:transparent;color:var(--paper);border:1px solid rgba(251,248,241,.6)">BE OM BEFARING</a>
+    </div>
+  </div>
+</section>
+
+<section style="padding:130px 64px">
+  <div class="grid2" style="display:grid;grid-template-columns:1fr 1.1fr;gap:80px;align-items:center">
+    <div style="height:460px"><img src="https://images.unsplash.com/photo-1564783679669-f5391270417b?auto=format&fit=crop&w=1400&q=80" alt="Takstein med mose — før behandling" style="width:100%;height:100%;object-fit:cover;filter:saturate(.82)"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:28px">
+      <div class="eyebrow">VÅRT UTGANGSPUNKT</div>
+      <p class="serif" style="margin:0;font-weight:300;font-size:32px;line-height:1.45;text-wrap:pretty">Vi vasker ikke hus. Vi bevarer eiendommer. Hvert tak, hver fasade og hver stein behandles med metoden materialet fortjener — så verdien holder seg like godt som utseendet.</p>
+      <div style="width:56px;height:1px;background:var(--gold)"></div>
+    </div>
+  </div>
+</section>
+
+<section id="tjenester" style="padding:0 64px 130px">
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:52px;border-bottom:1px solid rgba(26,26,26,.15);padding-bottom:22px;flex-wrap:wrap;gap:10px">
+    <h2 class="serif" style="margin:0;font-weight:300;font-size:44px">Tre tjenester. Ikke flere.</h2>
+    <div style="font-size:11px;letter-spacing:.2em;color:rgba(26,26,26,.5);font-weight:500">SMALT, MED HENSIKT</div>
+  </div>
+  <div class="grid3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:44px">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="height:300px"><img src="https://images.unsplash.com/photo-1635424824849-1b09bdcc55b1?auto=format&fit=crop&w=1200&q=80" alt="Håndverker sikret med tau under arbeid på tak" style="width:100%;height:100%;object-fit:cover;filter:saturate(.82)"></div>
+      <div style="display:flex;align-items:baseline;gap:12px"><div class="serif" style="font-size:15px;color:var(--gold)">01</div><h3 class="serif" style="margin:0;font-weight:400;font-size:26px">Takvask</h3></div>
+      <p style="margin:0;font-size:14.5px;line-height:1.7;color:rgba(26,26,26,.72)">Mose fjernes skånsomt, taket vaskes med trykk tilpasset steinen, og impregneres til slutt. Ett besøk — flere år med beskyttelse.</p>
+      <a href="#kalkulator" class="lesmer">BEREGN PRIS</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="height:300px"><img src="https://images.unsplash.com/photo-1421940943431-d392fcc1079f?auto=format&fit=crop&w=1200&q=80" alt="Håndverker vasker fasade med lavt trykk" style="width:100%;height:100%;object-fit:cover;filter:saturate(.82)"></div>
+      <div style="display:flex;align-items:baseline;gap:12px"><div class="serif" style="font-size:15px;color:var(--gold)">02</div><h3 class="serif" style="margin:0;font-weight:400;font-size:26px">Fasadevask</h3></div>
+      <p style="margin:0;font-size:14.5px;line-height:1.7;color:rgba(26,26,26,.72)">Softwash renser fasaden uten å slite på den. Puss, panel og mur behandles hver på sin måte — aldri med samme trykk.</p>
+      <a href="#kalkulator" class="lesmer">BEREGN PRIS</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="height:300px"><img src="https://images.unsplash.com/photo-1718152421680-d1580e843cc9?auto=format&fit=crop&w=1200&q=80" alt="Maskinvask av belegningsstein" style="width:100%;height:100%;object-fit:cover;filter:saturate(.82)"></div>
+      <div style="display:flex;align-items:baseline;gap:12px"><div class="serif" style="font-size:15px;color:var(--gold)">03</div><h3 class="serif" style="margin:0;font-weight:400;font-size:26px">Belegningsstein</h3></div>
+      <p style="margin:0;font-size:14.5px;line-height:1.7;color:rgba(26,26,26,.72)">Innkjørselen er det første gjestene ser. Vi renser, fuger og impregnerer stein så den ser ut som den dagen den ble lagt.</p>
+      <a href="#kalkulator" class="lesmer">BEREGN PRIS</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRISKALKULATOR ============ -->
+<section id="kalkulator" style="background:var(--cream-dark);padding:120px 64px">
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:52px;border-bottom:1px solid rgba(26,26,26,.15);padding-bottom:22px;flex-wrap:wrap;gap:10px">
+    <h2 class="serif" style="margin:0;font-weight:300;font-size:44px">Hva vil det koste?</h2>
+    <div style="font-size:11px;letter-spacing:.2em;color:rgba(26,26,26,.5);font-weight:500">ESTIMAT PÅ MINUTTET</div>
+  </div>
+
+  <div class="grid2w" style="display:grid;grid-template-columns:1fr 1.15fr;gap:70px;align-items:start">
+
+    <!-- Venstre: Google Maps-hjelp -->
+    <div style="display:flex;flex-direction:column;gap:22px">
+      <div class="eyebrow">1 · FINN TAKETS GRUNNFLATE</div>
+      <p style="margin:0;font-size:14.5px;line-height:1.75;color:rgba(26,26,26,.72)">Du trenger ikke opp på taket. Skriv inn adressen, så henter vi flyfoto fra Google Maps. Bruk gjerne Googles arealanslag: høyreklikk på et hjørne av taket i Google Maps, velg <em>«Mål avstand»</em>, og klikk deg rundt takflaten — arealet vises nederst. Er du usikker, holder et grovt anslag: kalkulatoren regner om til reell takflate ut fra takvinkelen du oppgir.</p>
+      <div style="display:flex;gap:12px">
+        <input id="adresse" class="field" placeholder="Gateadresse, sted (f.eks. Holmenveien 12, Oslo)" style="flex:1" autocomplete="street-address">
+        <button id="visKart" class="btn-green" style="padding:12px 22px;white-space:nowrap">VIS TAKET</button>
+      </div>
+      <div id="kartRamme" style="position:relative;height:380px;background:#DCD3BE;display:flex;align-items:center;justify-content:center">
+        <div id="kartPlaceholder" style="font-size:12px;letter-spacing:.14em;color:rgba(26,26,26,.45);text-align:center;padding:0 40px;line-height:2">FLYFOTO AV EIENDOMMEN VISES HER<br>NÅR DU HAR SKREVET INN ADRESSEN</div>
+      </div>
+      <div style="font-size:12px;line-height:1.6;color:rgba(26,26,26,.55)">Tips: I kartet kan du zoome helt inn på taket. Åpne samme adresse i <a id="mapsLenke" href="https://www.google.com/maps" target="_blank" rel="noopener" style="border-bottom:1px solid var(--gold)">Google Maps</a> for å bruke måleverktøyet.</div>
+    </div>
+
+    <!-- Høyre: Kalkulator -->
+    <div style="background:var(--cream);padding:44px;display:flex;flex-direction:column;gap:22px">
+      <div class="serif" style="font-weight:400;font-size:24px">Priskalkulator — takvask</div>
+
+      <div>
+        <div style="font-size:10px;letter-spacing:.2em;color:rgba(26,26,26,.55);font-weight:600;margin-bottom:6px">2 · TAKETS GRUNNFLATE (M² SETT OVENFRA)</div>
+        <input id="grunnflate" class="field" type="number" min="10" max="3000" step="5" value="120" inputmode="numeric">
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <div style="font-size:10px;letter-spacing:.2em;color:rgba(26,26,26,.55);font-weight:600">3 · TAKVINKEL</div>
+          <div class="serif" style="font-size:18px;color:var(--green)"><span id="vinkelVerdi">30</span>°</div>
+        </div>
+        <input id="vinkel" type="range" min="0" max="55" step="1" value="30">
+        <div style="display:flex;justify-content:space-between;font-size:10px;letter-spacing:.12em;color:rgba(26,26,26,.45);margin-top:2px"><span>FLATT</span><span>NORMALT (25–40°)</span><span>BRATT</span></div>
+        <div style="font-size:12.5px;color:rgba(26,26,26,.6);margin-top:8px">Reell takflate: <span id="takflate" class="serif" style="color:var(--ink)">139</span> m²</div>
+      </div>
+
+      <div>
+        <div style="font-size:10px;letter-spacing:.2em;color:rgba(26,26,26,.55);font-weight:600;margin-bottom:2px">4 · TILLEGGSTJENESTER</div>
+
+        <label class="opt" for="optImpregnering">
+          <input type="checkbox" id="optImpregnering" checked>
+          <div><div class="opt-title">Impregnering av tak</div><div class="opt-desc">Beskytter mot ny mosevekst i flere år. Anbefales etter takvask.</div></div>
+          <div class="opt-price" id="prisImpregnering"></div>
+        </label>
+
+        <label class="opt" for="optTakrenne">
+          <input type="checkbox" id="optTakrenne">
+          <div><div class="opt-title">Takrennevask</div><div class="opt-desc">Renner og nedløp tømmes og skylles mens vi først er på taket.</div></div>
+          <div class="opt-price" id="prisTakrenne"></div>
+        </label>
+
+        <label class="opt" for="optFasade">
+          <input type="checkbox" id="optFasade">
+          <div><div class="opt-title">Fasadevask</div><div class="opt-desc">Skånsom softwash av fasaden — puss, panel eller mur.</div></div>
+          <div class="opt-price" id="prisFasade"></div>
+        </label>
+        <div class="subfield" id="subFasade">
+          <label for="fasadeAreal">FASADEAREAL (M²)</label>
+          <input id="fasadeAreal" class="field" type="number" min="10" max="3000" step="5" value="140" inputmode="numeric">
+        </div>
+
+        <label class="opt" for="optStein">
+          <input type="checkbox" id="optStein">
+          <div><div class="opt-title">Rens av belegningsstein</div><div class="opt-desc">Rens, fuging og impregnering av innkjørsel eller gårdsplass.</div></div>
+          <div class="opt-price" id="prisStein"></div>
+        </label>
+        <div class="subfield" id="subStein">
+          <label for="steinAreal">AREAL BELEGNINGSSTEIN (M²)</label>
+          <input id="steinAreal" class="field" type="number" min="5" max="1000" step="5" value="50" inputmode="numeric">
+        </div>
+      </div>
+
+      <div style="border-top:1px solid rgba(26,26,26,.2);padding-top:16px">
+        <div id="sumLinjer"></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(26,26,26,.2);margin-top:8px;padding-top:14px">
+          <div style="font-size:11px;letter-spacing:.2em;font-weight:600">ESTIMERT PRIS</div>
+          <div class="serif" style="font-weight:400;font-size:34px;color:var(--green)"><span id="totalPris">—</span> kr</div>
+        </div>
+        <div style="font-size:12px;line-height:1.6;color:rgba(26,26,26,.55);margin-top:6px">Uforpliktende estimat inkl. mva. Endelig fast pris bekreftes skriftlig etter befaring — ingen overraskelser underveis.</div>
+      </div>
+
+      <button id="tilBefaring" class="btn-green" style="align-self:flex-start">BE OM BEFARING MED DETTE ESTIMATET</button>
+    </div>
+  </div>
+</section>
+
+<section id="hvorfor" style="padding:120px 64px">
+  <div class="grid2" style="display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <h2 class="serif" style="margin:0;font-weight:300;font-size:44px;line-height:1.2;text-wrap:pretty">Dette kan dere forvente av oss</h2>
+      <p style="margin:0;font-size:15px;line-height:1.75;color:rgba(26,26,26,.72);max-width:38ch">Vi lover ikke mer enn vi kan holde. Men det vi lover, holder vi — hver gang, hos hver kunde.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+      <div style="padding:28px 32px 28px 0;border-bottom:1px solid rgba(26,26,26,.15)"><div class="serif" style="font-size:14px;color:var(--gold);margin-bottom:10px">I</div><div class="serif" style="font-size:21px;margin-bottom:8px">Riktig metode</div><div style="font-size:13.5px;line-height:1.65;color:rgba(26,26,26,.7)">Trykk, middel og teknikk velges etter materialet — aldri omvendt.</div></div>
+      <div style="padding:28px 0 28px 32px;border-bottom:1px solid rgba(26,26,26,.15);border-left:1px solid rgba(26,26,26,.15)"><div class="serif" style="font-size:14px;color:var(--gold);margin-bottom:10px">II</div><div class="serif" style="font-size:21px;margin-bottom:8px">Diskresjon</div><div style="font-size:13.5px;line-height:1.65;color:rgba(26,26,26,.7)">Vi kommer presis, arbeider stille og rydder etter oss. Naboene merker bare resultatet.</div></div>
+      <div style="padding:28px 32px 28px 0"><div class="serif" style="font-size:14px;color:var(--gold);margin-bottom:10px">III</div><div class="serif" style="font-size:21px;margin-bottom:8px">Verdibevaring</div><div style="font-size:13.5px;line-height:1.65;color:rgba(26,26,26,.7)">Vedlikehold utført riktig forlenger levetiden på tak, fasade og stein — og eiendommens verdi.</div></div>
+      <div style="padding:28px 0 28px 32px;border-left:1px solid rgba(26,26,26,.15)"><div class="serif" style="font-size:14px;color:var(--gold);margin-bottom:10px">IV</div><div class="serif" style="font-size:21px;margin-bottom:8px">Ett kontaktpunkt</div><div style="font-size:13.5px;line-height:1.65;color:rgba(26,26,26,.7)">Samme ansvarlige fra befaring til ferdig arbeid. Dere forholder dere til én person.</div></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:0 64px 130px;display:flex;justify-content:center">
+  <div style="max-width:860px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:30px">
+    <div class="serif" style="font-size:64px;line-height:0;color:var(--wine);height:24px">«</div>
+    <p id="omtaleTekst" class="serif" style="margin:0;font-weight:300;font-style:italic;font-size:30px;line-height:1.5;text-wrap:pretty;min-height:135px"></p>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <div id="omtaleNavn" style="font-size:12px;letter-spacing:.16em;font-weight:600"></div>
+      <div id="omtaleRolle" style="font-size:12px;color:rgba(26,26,26,.55)"></div>
+    </div>
+    <div id="omtaleDots" style="display:flex;gap:10px;margin-top:6px"></div>
+  </div>
+</section>
+
+<section id="omrade" style="border-top:1px solid rgba(26,26,26,.12);border-bottom:1px solid rgba(26,26,26,.12);padding:100px 64px">
+  <div class="grid2" style="display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="eyebrow">DEKNINGSOMRÅDE</div>
+      <h2 class="serif" style="margin:0;font-weight:300;font-size:40px;line-height:1.2">Vi jobber der du er.</h2>
+      <p style="margin:0;font-size:14.5px;line-height:1.7;color:rgba(26,26,26,.72);max-width:40ch">Renere Tak arbeider i Oslo, Asker og Bærum — for eneboliger og rekkehus, borettslag og sameier, og næringsbygg. Teglstein fra tredveårene og moderne fasadeplater krever ulik behandling — vi vet forskjellen.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:44px">
+      <div class="grid3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:36px">
+        <div style="border-top:1px solid rgba(26,26,26,.2);padding-top:20px;display:flex;flex-direction:column;gap:10px">
+          <div class="serif" style="font-size:14px;color:var(--gold)">01</div>
+          <div class="serif" style="font-weight:300;font-size:36px">Oslo</div>
+          <div style="font-size:13px;line-height:1.6;color:rgba(26,26,26,.6)">Hele byen — fra bygårder i sentrum til villaer i vest.</div>
+        </div>
+        <div style="border-top:1px solid rgba(26,26,26,.2);padding-top:20px;display:flex;flex-direction:column;gap:10px">
+          <div class="serif" style="font-size:14px;color:var(--gold)">02</div>
+          <div class="serif" style="font-weight:300;font-size:36px">Asker</div>
+          <div style="font-size:13px;line-height:1.6;color:rgba(26,26,26,.6)">Eneboliger, rekkehus og sameier i hele kommunen.</div>
+        </div>
+        <div style="border-top:1px solid rgba(26,26,26,.2);padding-top:20px;display:flex;flex-direction:column;gap:10px">
+          <div class="serif" style="font-size:14px;color:var(--gold)">03</div>
+          <div class="serif" style="font-weight:300;font-size:36px">Bærum</div>
+          <div style="font-size:13px;line-height:1.6;color:rgba(26,26,26,.6)">Fra Sandvika til Fornebu — private og næring.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;border-top:1px solid rgba(26,26,26,.2);padding-top:24px">
+        <div style="font-size:10px;letter-spacing:.22em;color:var(--gold);font-weight:600">VI BISTÅR</div>
+        <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center">
+          <div style="font-size:12px;letter-spacing:.14em;font-weight:500">PRIVATE HJEM</div>
+          <div style="width:3px;height:3px;background:var(--gold)"></div>
+          <div style="font-size:12px;letter-spacing:.14em;font-weight:500">BORETTSLAG</div>
+          <div style="width:3px;height:3px;background:var(--gold)"></div>
+          <div style="font-size:12px;letter-spacing:.14em;font-weight:500">SAMEIER</div>
+          <div style="width:3px;height:3px;background:var(--gold)"></div>
+          <div style="font-size:12px;letter-spacing:.14em;font-weight:500">NÆRINGSBYGG</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="kontakt" style="background:var(--green);padding:120px 64px">
+  <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:90px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div class="eyebrow">BEFARING</div>
+      <h2 class="serif" style="margin:0;font-weight:300;font-size:46px;line-height:1.18;color:var(--cream);text-wrap:pretty">Vi ser på eiendommen før vi sier noe om pris.</h2>
+      <p style="margin:0;font-size:15px;line-height:1.75;color:rgba(246,241,231,.75);max-width:46ch">En befaring er uforpliktende — enten det gjelder en enebolig, et borettslag eller et næringsbygg. Vi vurderer tak, fasade eller stein på stedet, og dere får en skriftlig anbefaling med fast pris — ingen overraskelser underveis.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;border-top:1px solid rgba(246,241,231,.2);padding-top:24px">
+        <div style="display:flex;gap:16px;align-items:baseline"><div style="font-size:10px;letter-spacing:.2em;color:var(--gold);font-weight:600;width:70px">TELEFON</div><div class="serif" style="font-size:20px;color:var(--cream)">22 00 00 00</div></div>
+        <div style="display:flex;gap:16px;align-items:baseline"><div style="font-size:10px;letter-spacing:.2em;color:var(--gold);font-weight:600;width:70px">E-POST</div><div class="serif" style="font-size:20px;color:var(--cream)">post@reneretak.no</div></div>
+      </div>
+    </div>
+    <div style="background:var(--cream);padding:44px;display:flex;flex-direction:column;gap:18px">
+      <div class="serif" style="font-weight:400;font-size:24px">Be om befaring</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <input placeholder="Navn" class="field" autocomplete="name">
+        <input placeholder="Telefon" class="field" autocomplete="tel">
+      </div>
+      <input id="kontaktAdresse" placeholder="Adresse" class="field" autocomplete="street-address">
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:6px">
+        <div style="font-size:10px;letter-spacing:.2em;color:rgba(26,26,26,.55);font-weight:600">GJELDER</div>
+        <div id="gjelderChips" style="display:flex;gap:10px;flex-wrap:wrap">
+          <div class="chip active" data-tjeneste="Takvask">Takvask</div>
+          <div class="chip" data-tjeneste="Fasadevask">Fasadevask</div>
+          <div class="chip" data-tjeneste="Takrennevask">Takrennevask</div>
+          <div class="chip" data-tjeneste="Belegningsstein">Belegningsstein</div>
+        </div>
+      </div>
+      <textarea id="kontaktMelding" placeholder="Kort om eiendommen (valgfritt)" rows="3" class="field" style="resize:none"></textarea>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn-green" onclick="alert('Takk! Vi tar kontakt innen én virkedag.')">SEND FORESPØRSEL</button>
+        <div style="font-size:12px;color:rgba(26,26,26,.55);max-width:20ch;line-height:1.5">Vi tar kontakt innen én virkedag.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer style="background:var(--green-dark);padding:44px 64px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+  <div style="display:flex;align-items:center;gap:12px">
+    <svg width="28" height="28" viewBox="0 0 120 120"><path d="M 14,46 L 60,14 L 106,46" fill="none" stroke="#B8893B" stroke-width="2.5"></path><text x="60" y="98" text-anchor="middle" style="font-family:Fraunces,serif;font-weight:300;font-size:56px;letter-spacing:.02em" fill="#F6F1E7">RT</text></svg>
+    <div style="width:1px;height:22px;background:rgba(246,241,231,.25)"></div>
+    <div class="serif" style="font-size:14px;letter-spacing:.3em;color:var(--cream)">RENERE TAK</div>
+  </div>
+  <div style="font-size:11px;letter-spacing:.14em;color:rgba(246,241,231,.5)">OSLO · ANNO MMXXVI · ORG.NR 000 000 000</div>
+</footer>
+
+<script>
+/* ============ Priskalkulator ============ */
+// Alle satser inkl. mva — juster her.
+const PRISER = {
+  takvaskOppmote: 3900,     // rigg, sikring og oppmøte
+  takvaskPerM2: 79,         // per m² reell takflate
+  impregneringPerM2: 39,    // per m² reell takflate
+  takrenneFast: 1490,       // fast tillegg når vi først er på taket
+  fasadePerM2: 55,          // per m² fasadeareal
+  fasadeMin: 2900,
+  steinPerM2: 89,           // per m² belegningsstein
+  steinMin: 1900,
+  minstepris: 6900
+};
+
+const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toLocaleString('nb-NO');
+const avrund = n => Math.round(n / 100) * 100;
+
+function reellTakflate() {
+  const grunnflate = Math.max(0, parseFloat($('grunnflate').value) || 0);
+  const vinkel = parseFloat($('vinkel').value) || 0;
+  // Skråtak: reell flate = grunnflate / cos(vinkel)
+  return grunnflate / Math.cos(vinkel * Math.PI / 180);
+}
+
+function beregn() {
+  $('vinkelVerdi').textContent = $('vinkel').value;
+  const takflate = reellTakflate();
+  $('takflate').textContent = fmt(takflate);
+
+  const linjer = [];
+  let sum = 0;
+
+  const takvask = PRISER.takvaskOppmote + takflate * PRISER.takvaskPerM2;
+  linjer.push(['Takvask (' + fmt(takflate) + ' m² takflate)', takvask]);
+  sum += takvask;
+
+  if ($('optImpregnering').checked) {
+    const p = takflate * PRISER.impregneringPerM2;
+    linjer.push(['Impregnering av tak', p]);
+    sum += p;
+  }
+  $('prisImpregnering').textContent = '+ ' + fmt(takflate * PRISER.impregneringPerM2) + ' kr';
+
+  if ($('optTakrenne').checked) {
+    linjer.push(['Takrennevask', PRISER.takrenneFast]);
+    sum += PRISER.takrenneFast;
+  }
+  $('prisTakrenne').textContent = '+ ' + fmt(PRISER.takrenneFast) + ' kr';
+
+  const fasadeAreal = Math.max(0, parseFloat($('fasadeAreal').value) || 0);
+  const fasadePris = Math.max(PRISER.fasadeMin, fasadeAreal * PRISER.fasadePerM2);
+  $('subFasade').classList.toggle('visible', $('optFasade').checked);
+  if ($('optFasade').checked) {
+    linjer.push(['Fasadevask (' + fmt(fasadeAreal) + ' m²)', fasadePris]);
+    sum += fasadePris;
+  }
+  $('prisFasade').textContent = '+ ' + fmt(fasadePris) + ' kr';
+
+  const steinAreal = Math.max(0, parseFloat($('steinAreal').value) || 0);
+  const steinPris = Math.max(PRISER.steinMin, steinAreal * PRISER.steinPerM2);
+  $('subStein').classList.toggle('visible', $('optStein').checked);
+  if ($('optStein').checked) {
+    linjer.push(['Rens av belegningsstein (' + fmt(steinAreal) + ' m²)', steinPris]);
+    sum += steinPris;
+  }
+  $('prisStein').textContent = '+ ' + fmt(steinPris) + ' kr';
+
+  sum = Math.max(sum, PRISER.minstepris);
+
+  $('sumLinjer').innerHTML = linjer.map(([navn, pris]) =>
+    '<div class="sumline"><span>' + navn + '</span><span class="v">' + fmt(pris) + ' kr</span></div>'
+  ).join('');
+  $('totalPris').textContent = fmt(avrund(sum));
+}
+
+['grunnflate','vinkel','fasadeAreal','steinAreal'].forEach(id => $(id).addEventListener('input', beregn));
+['optImpregnering','optTakrenne','optFasade','optStein'].forEach(id => $(id).addEventListener('change', beregn));
+beregn();
+
+/* Google Maps flyfoto (embed uten API-nøkkel) + lenke til måleverktøyet */
+function visKart() {
+  const adresse = $('adresse').value.trim();
+  if (!adresse) { $('adresse').focus(); return; }
+  const q = encodeURIComponent(adresse);
+  const ramme = $('kartRamme');
+  ramme.innerHTML = '<iframe src="https://maps.google.com/maps?q=' + q +
+    '&t=k&z=20&output=embed" style="position:absolute;inset:0;width:100%;height:100%;border:0" loading="lazy" ' +
+    'referrerpolicy="no-referrer-when-downgrade" title="Flyfoto av eiendommen"></iframe>';
+  $('mapsLenke').href = 'https://www.google.com/maps/search/?api=1&query=' + q + '&basemap=satellite';
+}
+$('visKart').addEventListener('click', visKart);
+$('adresse').addEventListener('keydown', e => { if (e.key === 'Enter') visKart(); });
+
+/* Ta med estimatet til befaringsskjemaet */
+$('tilBefaring').addEventListener('click', () => {
+  const valg = ['Takvask'];
+  if ($('optImpregnering').checked) valg.push('impregnering');
+  if ($('optTakrenne').checked) valg.push('takrennevask');
+  if ($('optFasade').checked) valg.push('fasadevask');
+  if ($('optStein').checked) valg.push('belegningsstein');
+  $('kontaktMelding').value =
+    'Estimat fra priskalkulatoren: ca. ' + $('totalPris').textContent + ' kr.\n' +
+    'Tak: ' + ($('grunnflate').value || '?') + ' m² grunnflate, ' + $('vinkel').value + '° takvinkel (ca. ' +
+    $('takflate').textContent + ' m² takflate). Valgt: ' + valg.join(', ') + '.';
+  const adresse = $('adresse').value.trim();
+  if (adresse && !$('kontaktAdresse').value) $('kontaktAdresse').value = adresse;
+  document.getElementById('kontakt').scrollIntoView({ behavior: 'smooth' });
+});
+
+/* Chips i kontaktskjema */
+document.querySelectorAll('#gjelderChips .chip').forEach(chip =>
+  chip.addEventListener('click', () => chip.classList.toggle('active')));
+
+/* ============ Omtaler ============ */
+const omtaler = [
+  { tekst: 'Grundig befaring, presis gjennomføring og et tak som ser nytt ut. Det var ryddigere da de dro enn da de kom.', navn: 'HENRIETTE W.', rolle: 'Villaeier, Vinderen' },
+  { tekst: 'Fasaden hadde ikke vært vasket på ti år. Nå ser huset ut som da vi kjøpte det — og de var ferdige på én dag.', navn: 'JAN ERIK S.', rolle: 'Huseier, Ullern' },
+  { tekst: 'Fast pris, ingen overraskelser, og innkjørselen ble som ny. Vi har allerede avtalt neste besøk.', navn: 'KRISTIN B.', rolle: 'Boligeier, Holmenkollen' }
+];
+let omtaleIdx = 0, omtaleTimer;
+function visOmtale(i) {
+  omtaleIdx = i;
+  const o = omtaler[i];
+  $('omtaleTekst').textContent = '' + o.tekst + '';
+  $('omtaleNavn').textContent = o.navn;
+  $('omtaleRolle').textContent = o.rolle;
+  $('omtaleDots').innerHTML = '';
+  omtaler.forEach((_, idx) => {
+    const d = document.createElement('div');
+    d.style.cssText = 'width:24px;height:14px;display:flex;align-items:center;cursor:pointer';
+    d.innerHTML = '<div style="width:24px;height:2px;background:' + (idx === i ? '#B8893B' : 'rgba(26,26,26,.15)') + '"></div>';
+    d.addEventListener('click', () => { clearInterval(omtaleTimer); visOmtale(idx); });
+    $('omtaleDots').appendChild(d);
+  });
+}
+visOmtale(0);
+omtaleTimer = setInterval(() => visOmtale((omtaleIdx + 1) % omtaler.length), 7000);
+</script>
+</body>
+</html>
