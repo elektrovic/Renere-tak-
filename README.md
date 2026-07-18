@@ -4,6 +4,8 @@ Nettside for Renere Tak — takvask, fasadevask og rens av belegningsstein i Osl
 
 Én selvstendig statisk side: `index.html` (ingen byggesteg — åpne filen i nettleseren, eller legg den på hvilken som helst statisk host).
 
+Live: **https://renere-tak.vercel.app** (Vercel-prosjektet `renere-tak`).
+
 ## Priskalkulator
 
 Seksjonen `#kalkulator` lar kunden beregne et uforpliktende estimat:
