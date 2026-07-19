@@ -1,6 +1,6 @@
-# Renere Tak
+# Tigerstaden Eiendomspleie
 
-Nettside for Renere Tak — takvask, fasadevask og rens av belegningsstein i Oslo, Asker og Bærum.
+Nettside for Tigerstaden Eiendomspleie — takvask, fasadevask og rens av belegningsstein i Oslo, Asker og Bærum.
 
 Én selvstendig statisk side: `index.html` (ingen byggesteg — åpne filen i nettleseren, eller legg den på hvilken som helst statisk host).
 
