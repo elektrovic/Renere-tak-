@@ -4,7 +4,7 @@ Nettside for Tigerstaden Eiendomspleie — takvask, fasadevask og rens av belegn
 
 Én selvstendig statisk side: `index.html` (ingen byggesteg — åpne filen i nettleseren, eller legg den på hvilken som helst statisk host).
 
-Live: **https://renere-tak.vercel.app** (Vercel-prosjektet `renere-tak`).
+Live: **https://tigerstaden-eiendomspleie.vercel.app** (Vercel-prosjektet `tigerstaden-eiendomspleie`).
 
 ## Priskalkulator
 
