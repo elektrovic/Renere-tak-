@@ -317,4 +317,25 @@ To veier videre, begge fungerer:
 
 ---
 
-*Ingenting bygges før du har godkjent denne planen.*
+## 10. Status
+
+Planen er gjennomført. Appen ligger i [`montorapp/`](../montorapp/) og dekker alle
+fem fasene, samt fase 3b. Se [`montorapp/README.md`](../montorapp/README.md) for
+oppsett og drift.
+
+Beslutninger tatt underveis, siden bestiller ba om at alle valg ble tatt uten
+ytterligere avklaringer:
+
+- Appen ligger i dette kodelageret under `montorapp/`, ikke i et nytt lager.
+  Nettsiden til Tigerstaden Eiendomspleie ligger urørt ved siden av.
+- Innlogging med e-post og PIN (scrypt-hash), fordi det er raskest på mobil i felt.
+- Avdelingen har felt for både Tripletex-selskap og Tripletex-avdeling, slik at
+  begge oppsett virker uten kodeendring. Spørsmål 1 er dermed ikke lenger
+  blokkerende, men må besvares før ekte data kobles på.
+- Tilbudssum hentes fra prosjektets fastpris i Tripletex, med manuell overstyring
+  for admin. Kobbr ligger klar bak et grensesnitt.
+- Uten nøkler kjører appen i demomodus med testdata, slik at hele flyten kan
+  prøves før Tripletex-tilgangen er på plass.
+
+De tre punktene merket «må verifiseres» i punkt 1 gjenstår fortsatt, og er
+markert med `VERIFISER` i koden.
