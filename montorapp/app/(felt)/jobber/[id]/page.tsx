@@ -23,15 +23,12 @@ interface Svar {
   }>;
 }
 
-interface MegSvar {
-  profil: { rolle: string; navn: string };
-}
-
 export default function ProsjektSide({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { data, feil, laster } = useHent<Svar>(`/api/prosjekt/${id}`);
-  const meg = useHent<MegSvar>('/api/meg');
-  const erAdmin = meg.data?.profil.rolle === 'admin';
+  // Serveren sender bare med økonomitallene til administratorer, så det at de
+  // finnes er i seg selv svaret på om de skal vises.
+  const erAdmin = Boolean(data?.baseline || data?.meta);
 
   if (laster) return <p className="tom">Henter prosjektet …</p>;
   if (feil) return <p className="melding feil">{feil}</p>;

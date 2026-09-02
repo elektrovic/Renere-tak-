@@ -35,15 +35,21 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ feil: 'Fant ikke prosjektet.' }, { status: 404 });
     }
 
-    const baseline = velgBaseline({
-      manuellSum: meta?.baselineKilde === 'manuell' ? meta.baselineSum : null,
-      tripletexFastpris: prosjekt.fastpris,
-      kobbrSum: null,
-    });
+    // Prosjektøkonomi – tilbudssum, fastpris og estimat – er kun for admin.
+    // Sperren ligger her, ikke bare i visningen.
+    const erAdmin = innlogget.profil.rolle === 'admin';
+
+    const baseline = erAdmin
+      ? velgBaseline({
+          manuellSum: meta?.baselineKilde === 'manuell' ? meta.baselineSum : null,
+          tripletexFastpris: prosjekt.fastpris,
+          kobbrSum: null,
+        })
+      : null;
 
     return ok({
-      prosjekt,
-      meta,
+      prosjekt: erAdmin ? prosjekt : { ...prosjekt, fastpris: null },
+      meta: erAdmin ? meta : null,
       baseline,
       mineTimer: mineTimer.filter((t) => t.prosjektId === prosjektId),
       aktiviteter,
