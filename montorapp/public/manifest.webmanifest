@@ -1,0 +1,21 @@
+{
+  "name": "Montørappen – Halland Gruppen",
+  "short_name": "Montørappen",
+  "description": "Timer, materiell, tilleggssalg og kontrollskjemaer i felt.",
+  "lang": "nb-NO",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F2F4F0",
+  "theme_color": "#17548F",
+  "icons": [
+    { "src": "/ikon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Før timer", "url": "/timer" },
+    { "name": "Mine jobber", "url": "/jobber" }
+  ]
+}

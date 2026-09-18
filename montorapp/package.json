@@ -1,0 +1,29 @@
+{
+  "name": "montorappen",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Internt CRM og feltapp for Halland Gruppen",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "icons": "node scripts/generate-icons.mjs",
+    "pin": "node --experimental-strip-types scripts/lag-pin.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.123.0",
+    "@supabase/supabase-js": "^2.112.4",
+    "next": "15.5.25",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.9.0"
+  }
+}
