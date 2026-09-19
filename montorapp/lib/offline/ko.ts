@@ -109,8 +109,112 @@ export interface SynkResultat {
 }
 
 /**
- * Sender køen. Trygg å kalle så ofte man vil – den gjør ingenting hvis en
- * sending allerede pågår, eller hvis telefonen er uten nett.
+ * Køen sendes i små puljer, ikke alt på én gang.
+ *
+ * Grunnen er todelt: mange hosting-tjenester kutter en forespørsel etter ti
+ * sekunder, og en montør på dårlig 4G rekker uansett ikke å sende ti
+ * registreringer med bilder i ett jafs. Små puljer betyr at det som går
+ * gjennom, blir stående som sendt – og bare resten prøves på nytt.
+ */
+const MAKS_JOBBER_PER_PULJE = 4;
+const MAKS_BYTE_PER_PULJE = 2_000_000;
+
+function delIPuljer(rader: KoRad[]): KoRad[][] {
+  const puljer: KoRad[][] = [];
+  let gjeldende: KoRad[] = [];
+  let storrelse = 0;
+
+  for (const rad of rader) {
+    const radStorrelse = JSON.stringify(rad.data).length;
+    const forFull =
+      gjeldende.length >= MAKS_JOBBER_PER_PULJE ||
+      (gjeldende.length > 0 && storrelse + radStorrelse > MAKS_BYTE_PER_PULJE);
+
+    if (forFull) {
+      puljer.push(gjeldende);
+      gjeldende = [];
+      storrelse = 0;
+    }
+    gjeldende.push(rad);
+    storrelse += radStorrelse;
+  }
+
+  if (gjeldende.length > 0) puljer.push(gjeldende);
+  return puljer;
+}
+
+async function sendPulje(pulje: KoRad[]): Promise<SynkResultat> {
+  for (const rad of pulje) await oppdater(rad.localId, { status: 'sender' });
+  varsleEndring();
+
+  const tilbakeIKo = async () => {
+    for (const rad of pulje) {
+      await oppdater(rad.localId, { status: 'i_ko', forsok: rad.forsok + 1 });
+    }
+    varsleEndring();
+  };
+
+  let svar: Response;
+  try {
+    svar = await fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jobber: pulje.map(({ type, localId, opprettet, data }) => ({
+          type,
+          localId,
+          opprettet,
+          data,
+        })),
+      }),
+    });
+  } catch {
+    await tilbakeIKo();
+    return { sendt: 0, feilet: 0, utenNett: true };
+  }
+
+  if (!svar.ok) {
+    await tilbakeIKo();
+    // 4xx er noe vi ikke retter opp ved å prøve igjen med det samme, men vi lar
+    // raden stå i kø slik at montøren kan prøve manuelt.
+    return { sendt: 0, feilet: 0, utenNett: svar.status >= 500 };
+  }
+
+  let resultater: KoResultat[];
+  try {
+    ({ resultater } = (await svar.json()) as { resultater: KoResultat[] });
+  } catch {
+    await tilbakeIKo();
+    return { sendt: 0, feilet: 0, utenNett: true };
+  }
+
+  let sendt = 0;
+  let feilet = 0;
+  for (const r of resultater) {
+    if (r.status === 'sendt') {
+      sendt++;
+      await oppdater(r.localId, { status: 'sendt', referanse: r.referanse, feilmelding: undefined });
+    } else {
+      feilet++;
+      await oppdater(r.localId, { status: 'feilet', feilmelding: r.feilmelding });
+    }
+  }
+
+  // Svarte serveren for færre enn vi sendte, står resten fortsatt i kø.
+  const besvart = new Set(resultater.map((r) => r.localId));
+  for (const rad of pulje) {
+    if (!besvart.has(rad.localId)) {
+      await oppdater(rad.localId, { status: 'i_ko', forsok: rad.forsok + 1 });
+    }
+  }
+
+  varsleEndring();
+  return { sendt, feilet, utenNett: false };
+}
+
+/**
+ * Sender køen, pulje for pulje. Trygg å kalle så ofte man vil – den gjør
+ * ingenting hvis en sending allerede pågår, eller hvis telefonen er uten nett.
  */
 export async function synk(inkluderFeilede = false): Promise<SynkResultat> {
   if (sendingPagar) return { sendt: 0, feilet: 0, utenNett: false };
@@ -126,52 +230,18 @@ export async function synk(inkluderFeilede = false): Promise<SynkResultat> {
 
   sendingPagar = true;
   try {
-    for (const rad of skalSendes) await oppdater(rad.localId, { status: 'sender' });
-    varsleEndring();
-
-    const svar = await fetch('/api/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jobber: skalSendes.map(({ type, localId, opprettet, data }) => ({
-          type,
-          localId,
-          opprettet,
-          data,
-        })),
-      }),
-    });
-
-    if (!svar.ok) {
-      for (const rad of skalSendes) {
-        await oppdater(rad.localId, { status: 'i_ko', forsok: rad.forsok + 1 });
-      }
-      varsleEndring();
-      return { sendt: 0, feilet: 0, utenNett: svar.status >= 500 };
-    }
-
-    const { resultater } = (await svar.json()) as { resultater: KoResultat[] };
     let sendt = 0;
     let feilet = 0;
 
-    for (const r of resultater) {
-      if (r.status === 'sendt') {
-        sendt++;
-        await oppdater(r.localId, { status: 'sendt', referanse: r.referanse, feilmelding: undefined });
-      } else {
-        feilet++;
-        await oppdater(r.localId, { status: 'feilet', feilmelding: r.feilmelding });
-      }
+    for (const pulje of delIPuljer(skalSendes)) {
+      const resultat = await sendPulje(pulje);
+      sendt += resultat.sendt;
+      feilet += resultat.feilet;
+      // Mistet vi nettet midtveis, stopper vi. Resten står trygt i kø.
+      if (resultat.utenNett) return { sendt, feilet, utenNett: true };
     }
 
-    varsleEndring();
     return { sendt, feilet, utenNett: false };
-  } catch {
-    for (const rad of skalSendes) {
-      await oppdater(rad.localId, { status: 'i_ko', forsok: rad.forsok + 1 });
-    }
-    varsleEndring();
-    return { sendt: 0, feilet: 0, utenNett: true };
   } finally {
     sendingPagar = false;
   }

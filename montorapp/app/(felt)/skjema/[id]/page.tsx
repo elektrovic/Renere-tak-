@@ -69,6 +69,9 @@ export default function SkjemaSide({ params }: { params: Promise<{ id: string }>
     try {
       const resultat = await hent<{ tekst: string; mangler: boolean }>('/api/skjema/ai', {
         method: 'POST',
+        // Assistenten skal aldri bli en propp i flyten. Svarer den ikke i tide,
+        // får montøren beskjed og skriver teksten selv.
+        tidsgrenseMs: 25000,
         body: JSON.stringify({
           malId: mal.id,
           sporsmalId: s.id,

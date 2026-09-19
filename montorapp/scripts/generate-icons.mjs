@@ -86,6 +86,27 @@ function lagPng(storrelse) {
   ]);
 }
 
+/** favicon.ico er en beholder rundt et lite PNG. Nettlesere spør etter den
+ *  av vane, og uten den får vi en 404 i konsollen på hver sidevisning. */
+function lagIco(png) {
+  const hode = Buffer.alloc(22);
+  hode.writeUInt16LE(0, 0); // reservert
+  hode.writeUInt16LE(1, 2); // type: ikon
+  hode.writeUInt16LE(1, 4); // antall bilder
+  hode.writeUInt8(32, 6); // bredde
+  hode.writeUInt8(32, 7); // høyde
+  hode.writeUInt8(0, 8); // antall farger (0 = ekte farger)
+  hode.writeUInt8(0, 9); // reservert
+  hode.writeUInt16LE(1, 10); // fargeplan
+  hode.writeUInt16LE(32, 12); // bits per piksel
+  hode.writeUInt32LE(png.length, 14);
+  hode.writeUInt32LE(22, 18); // hvor bildet starter
+  return Buffer.concat([hode, png]);
+}
+
+writeFileSync('public/favicon.ico', lagIco(lagPng(32)));
+console.log('Skrev public/favicon.ico');
+
 for (const storrelse of [192, 512, 180]) {
   const filnavn = storrelse === 180 ? 'public/ikon-180.png' : `public/ikon-${storrelse}.png`;
   writeFileSync(filnavn, lagPng(storrelse));
