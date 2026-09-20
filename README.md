@@ -1,36 +1,24 @@
-# Halland Gruppen – kodelager
+# Tigerstaden Eiendomspleie
 
-Dette lageret inneholder to selvstendige ting:
+Nettside for Tigerstaden Eiendomspleie — takvask, fasadevask og rens av belegningsstein i Oslo, Asker og Bærum.
 
-## 1. Montørappen — `montorapp/`
+Én selvstendig statisk side: `index.html` (ingen byggesteg — åpne filen i nettleseren, eller legg den på hvilken som helst statisk host).
 
-Internt CRM og feltapp for Halland Gruppen. Montørene fører timer, materiell og
-tilleggssalg på mobil, fyller ut kontrollskjemaer, og alt skrives til Tripletex.
-Bygget for Tigerstaden Elektro og Tigerstaden Lås & Sikkerhet, med avdeling som
-et førsteklasses begrep i datamodellen.
+Live: **https://tigerstaden-eiendomspleie.vercel.app** (Vercel-prosjektet `tigerstaden-eiendomspleie`).
 
-Next.js + TypeScript, PWA med offline-kø, Supabase som database, deployes på
-Vercel med **Root Directory = `montorapp`**.
+## Priskalkulator
 
-→ [`montorapp/README.md`](montorapp/README.md) for oppsett og drift
-→ [`docs/plan-halland-crm.md`](docs/plan-halland-crm.md) for planen og funnene fra Tripletex-API-et
+Seksjonen `#kalkulator` lar kunden beregne et uforpliktende estimat:
 
-## 2. Tigerstaden Eiendomspleie — `index.html`
+1. **Takets grunnflate (m²)** — kunden kan skrive inn adressen og få flyfoto fra Google Maps rett på siden (embed, krever ingen API-nøkkel), med veiledning til Googles «Mål avstand»-verktøy for å anslå takarealet.
+2. **Takvinkel (0–55°)** — kalkulatoren regner om grunnflate til reell takflate: `takflate = grunnflate / cos(vinkel)`.
+3. **Tilleggstjenester** — impregnering av tak, takrennevask, fasadevask (med eget arealfelt) og rens av belegningsstein (med eget arealfelt).
 
-Nettsiden for takvask, fasadevask og rens av belegningsstein.
-Én selvstendig statisk side uten byggesteg.
+Estimatet vises med linje per tjeneste og totalsum (avrundet til nærmeste 100 kr, med minstepris). Knappen «Be om befaring med dette estimatet» fyller ut kontaktskjemaet med estimatet og adressen.
 
-Live: **https://tigerstaden-eiendomspleie.vercel.app**
+### Justere priser
 
-### Priskalkulator
-
-Seksjonen `#kalkulator` gir kunden et uforpliktende estimat:
-
-1. **Takets grunnflate (m²)** — kunden kan skrive inn adressen og få flyfoto fra Google Maps rett på siden.
-2. **Takvinkel (0–55°)** — regner om grunnflate til reell takflate: `takflate = grunnflate / cos(vinkel)`.
-3. **Tilleggstjenester** — impregnering, takrennevask, fasadevask og rens av belegningsstein.
-
-Alle satser ligger i `PRISER`-objektet øverst i `<script>`-blokken i `index.html`:
+Alle satser ligger samlet i `PRISER`-objektet øverst i `<script>`-blokken i `index.html`:
 
 | Nøkkel | Betydning |
 |---|---|
@@ -41,3 +29,16 @@ Alle satser ligger i `PRISER`-objektet øverst i `<script>`-blokken i `index.htm
 | `fasadePerM2` / `fasadeMin` | Fasadevask per m² / minstepris |
 | `steinPerM2` / `steinMin` | Belegningsstein per m² / minstepris |
 | `minstepris` | Total minstepris per oppdrag |
+
+Satsene er eksempler — juster til reelle priser før lansering.
+
+---
+
+## Montørappen ligger et annet sted
+
+Det interne CRM- og feltsystemet for Halland Gruppen lå en periode i dette
+lageret, under `montorapp/`. Det har nå fått sitt eget:
+[`elektrovic/CRM-SYSTEM-`](https://github.com/elektrovic/CRM-SYSTEM-).
+
+De to har ingenting med hverandre å gjøre ut over at de tilhører samme konsern.
+Denne siden er ren HTML uten byggesteg; appen er en Next.js-app med database.
