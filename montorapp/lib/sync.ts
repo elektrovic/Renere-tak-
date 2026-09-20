@@ -3,6 +3,7 @@ import type { Innlogget } from '@/lib/auth/session';
 import { butikk } from '@/lib/store';
 import { tripletex, TripletexError } from '@/lib/tripletex';
 import { lagSkjemaPdf } from '@/lib/pdf/skjema';
+import { lagreTilleggsbilder } from '@/lib/lagring';
 import { datoMinus, idag } from '@/lib/uke';
 import type { KoJobb, KoResultat } from '@/lib/offline/typer';
 import type { SkjemaUtfylling, Tillegg, TimeforingsJobb } from '@/lib/types';
@@ -137,7 +138,7 @@ async function behandleTillegg(
   const linjer = jobb.data.linjer.filter((l) => l.antall > 0 && l.beskrivelse.trim() !== '');
   const sum = linjer.reduce((s, l) => s + l.antall * l.enhetspris, 0);
 
-  const rad: Tillegg = {
+  const grunnrad: Tillegg = {
     id: fraFor?.id ?? randomUUID(),
     localId: jobb.localId,
     avdelingId: innlogget.avdeling.id,
@@ -151,18 +152,28 @@ async function behandleTillegg(
     signertNavn: jobb.data.signertNavn,
     signertTid: jobb.data.signatur ? jobb.opprettet : null,
     signatur: jobb.data.signatur,
-    bilder: jobb.data.bilder,
+    bilder: [],
     registreringMs: jobb.data.registreringMs,
     feilmelding: null,
     opprettet: fraFor?.opprettet ?? jobb.opprettet,
   };
-  await db.lagreTillegg(rad);
 
-  const feil = validerTillegg(rad);
+  // Sjekk innholdet før vi laster opp noe. Da slipper vi å legge igjen bilder
+  // for et tillegg som uansett blir avvist.
+  const feil = validerTillegg(grunnrad);
   if (feil) {
-    await db.lagreTillegg({ ...rad, status: 'feilet', feilmelding: feil });
+    await db.lagreTillegg({ ...grunnrad, status: 'feilet', feilmelding: feil });
     return { localId: jobb.localId, status: 'feilet', feilmelding: feil };
   }
+
+  // Bildene ut av databasen og inn i fillageret. Databasen får bare stien.
+  const { stier, feilet: bilderFeilet } = await lagreTilleggsbilder(jobb.data.bilder, {
+    avdelingId: innlogget.avdeling.id,
+    localId: jobb.localId,
+  });
+
+  const rad: Tillegg = { ...grunnrad, bilder: stier };
+  await db.lagreTillegg(rad);
 
   try {
     const ordreId = await tt.opprettOrdreMedLinjer({
@@ -176,7 +187,16 @@ async function behandleTillegg(
       })),
     });
 
-    await db.lagreTillegg({ ...rad, status: 'sendt', tripletexOrderId: ordreId });
+    await db.lagreTillegg({
+      ...rad,
+      status: 'sendt',
+      tripletexOrderId: ordreId,
+      // Et bilde som ikke gikk gjennom skal ikke stoppe salget, men montøren
+      // skal få vite det.
+      feilmelding: bilderFeilet > 0
+        ? `Tillegget er sendt, men ${bilderFeilet === 1 ? 'ett bilde' : `${bilderFeilet} bilder`} ble ikke lagret.`
+        : null,
+    });
     return { localId: jobb.localId, status: 'sendt', referanse: `Ordre ${ordreId}` };
   } catch (feilen) {
     const melding = lesbarFeil(feilen);

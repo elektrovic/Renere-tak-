@@ -188,6 +188,16 @@ create table if not exists maal (
 create index if not exists maal_uke_idx on maal (avdeling_id, uke);
 
 -- ---------------------------------------------------------------------------
+-- Fillager for bilder fra felt
+--
+-- Bildene skal ikke ligge i databasen. Bøtta er privat; appen henter bildene
+-- med kortlevde, signerte lenker fra serveren.
+-- ---------------------------------------------------------------------------
+insert into storage.buckets (id, name, public)
+values ('tillegg-bilder', 'tillegg-bilder', false)
+on conflict (id) do nothing;
+
+-- ---------------------------------------------------------------------------
 -- Radsikkerhet
 --
 -- Appen snakker med databasen fra serveren, med tjenestenøkkelen. Den nøkkelen
