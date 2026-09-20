@@ -1,0 +1,19 @@
+# Oppsett for Netlify.
+#
+# Appen ligger i undermappen montorapp/, så i Netlify må «Base directory»
+# settes til montorapp. Resten leses fra denne filen.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Serverfunksjoner stoppes etter 10 sekunder på gratisplanen, og 26 sekunder
+# på betalt plan (må aktiveres av Netlify-support). Appen sender køen i små
+# puljer nettopp for å holde seg innenfor 10 sekunder.
+#
+# Har dere betalt plan og fått grensen hevet, kan denne skrus på:
+# [functions]
+#   timeout = 26
