@@ -147,11 +147,21 @@ SUPABASE_SERVICE_ROLE_KEY
 ANTHROPIC_API_KEY           (valgfri – kun for forslag til fritekst i skjemaene)
 ```
 
-### 3. Vercel
+### 3. Hosting
 
-Prosjektets **Root Directory** settes til `montorapp`. Resten er standard
-Next.js. Etter deploy: gå til **Admin → Oppsett** i appen for å se hva som er
-koblet på og hva som mangler.
+Appen kan kjøres hos hvem som helst som tar Next.js. To oppsett er klargjort:
+
+**Netlify** (anbefalt): importer repoet og sett **Base directory** til
+`montorapp`. `netlify.toml` tar resten. Merk at serverfunksjoner kuttes etter
+10 sekunder på gratisplanen og 26 på betalt – køen sendes derfor i små puljer,
+og assistentkallet i kontrollskjemaene gir opp med en lesbar beskjed etter 25
+sekunder. Vil dere ha serverne i EU, krever det betalt plan
+(Functions region → `eu-central-1`).
+
+**Vercel**: sett **Root Directory** til `montorapp`. Resten er standard Next.js.
+
+Etter deploy: gå til **Admin → Oppsett** i appen for å se hva som er koblet på
+og hva som mangler.
 
 ### 4. På telefonen
 

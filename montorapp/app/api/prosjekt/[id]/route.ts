@@ -3,6 +3,7 @@ import { krevInnlogget } from '@/lib/auth/session';
 import { butikk } from '@/lib/store';
 import { tripletex } from '@/lib/tripletex';
 import { velgBaseline } from '@/lib/kobbr';
+import { lagring } from '@/lib/lagring';
 import { datoMinus, idag } from '@/lib/uke';
 import { feilsvar, ok } from '@/lib/api-svar';
 
@@ -53,15 +54,25 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       baseline,
       mineTimer: mineTimer.filter((t) => t.prosjektId === prosjektId),
       aktiviteter,
-      tillegg: tillegg.map((t) => ({
-        id: t.id,
-        sum: t.sum,
-        type: t.type,
-        status: t.status,
-        signert: Boolean(t.signertTid),
-        opprettet: t.opprettet,
-        linjer: t.linjer,
-      })),
+      tillegg: await Promise.all(
+        tillegg.map(async (t) => ({
+          id: t.id,
+          sum: t.sum,
+          type: t.type,
+          status: t.status,
+          signert: Boolean(t.signertTid),
+          opprettet: t.opprettet,
+          linjer: t.linjer,
+          antallBilder: t.bilder.length,
+          // Bildene ligger i privat fillager. Admin får kortlevde lenker;
+          // montøren ser bare at bildene finnes.
+          bildeLenker: erAdmin
+            ? (await Promise.all(t.bilder.map((sti) => lagring().hentLenke(sti)))).filter(
+                (l): l is string => l !== null,
+              )
+            : [],
+        })),
+      ),
     });
   } catch (feil) {
     return feilsvar(feil);
