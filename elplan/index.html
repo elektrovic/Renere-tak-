@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elplan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Oppsett: smal verktøylist til venstre (nederst på mobil), tegningen fyller resten.
+     Farger og skrift fra Tigerstaden Elektro: papir, bein, blekk, marine og en sparsom gullaksent. */
+  :root{
+    --paper:#F5F2EC; --bone:#EBE6DC; --surface:#FBFAF7; --ink:#1A1A1A;
+    --muted:rgba(26,26,26,.62); --rule:rgba(26,26,26,.14); --rule-strong:rgba(26,26,26,.28);
+    --canvas-bg:#E2DCD0; --heritage:#B8893B; --heritage-ink:#7A561C;
+    --primary-bg:#0A1F3D; --primary-fg:#F5F2EC; --primary-hover:#163056;
+    --active-bg:#0A1F3D; --active-fg:#F5F2EC; --danger:#9B2B22;
+    --display:"Fraunces", Georgia, "Times New Roman", serif;
+    --sans:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0E1524; --bone:#172033; --surface:#121B2C; --ink:#F1EDE4;
+      --muted:rgba(241,237,228,.64); --rule:rgba(241,237,228,.14); --rule-strong:rgba(241,237,228,.3);
+      --canvas-bg:#080D18; --heritage:#C9A15A; --heritage-ink:#D9B676;
+      --primary-bg:#D9B676; --primary-fg:#0E1524; --primary-hover:#E6C68C;
+      --active-bg:#F1EDE4; --active-fg:#0E1524; --danger:#E3786E;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0E1524; --bone:#172033; --surface:#121B2C; --ink:#F1EDE4;
+    --muted:rgba(241,237,228,.64); --rule:rgba(241,237,228,.14); --rule-strong:rgba(241,237,228,.3);
+    --canvas-bg:#080D18; --heritage:#C9A15A; --heritage-ink:#D9B676;
+    --primary-bg:#D9B676; --primary-fg:#0E1524; --primary-hover:#E6C68C;
+    --active-bg:#F1EDE4; --active-fg:#0E1524; --danger:#E3786E;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{height:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:14px;
+    display:grid;grid-template-rows:auto auto minmax(0,1fr);overflow:hidden;-webkit-tap-highlight-color:transparent}
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer}
+  :focus-visible{outline:2px solid var(--heritage);outline-offset:2px}
+
+  /* Toppfelt */
+  .topp{display:flex;align-items:center;gap:12px;padding-block:10px;
+    padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+    border-bottom:1px solid var(--rule);background:var(--paper)}
+  .merke{display:flex;flex-direction:column;line-height:1;flex:none}
+  .merke b{font-family:var(--display);font-weight:500;font-size:22px;letter-spacing:-.01em}
+  .merke span{font-size:9.5px;letter-spacing:.2em;color:var(--muted);margin-top:4px;font-weight:500}
+  .prosjekt{flex:1;min-width:0;display:flex;align-items:center}
+  .prosjekt input{width:100%;max-width:420px;border:0;border-bottom:1px solid transparent;background:transparent;
+    padding:6px 2px;font-size:15px;font-weight:500;border-radius:0}
+  .prosjekt input:hover{border-bottom-color:var(--rule-strong)}
+  .prosjekt input:focus{outline:none;border-bottom-color:var(--heritage)}
+  .prosjekt input::placeholder{color:var(--muted);font-weight:400}
+  .knapper{display:flex;gap:8px;flex:none}
+  .knapp{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--rule-strong);background:var(--surface);
+    padding:9px 14px;border-radius:2px;font-weight:500;white-space:nowrap;transition:background .15s,border-color .15s}
+  .knapp:hover{border-color:var(--ink)}
+  .knapp:disabled{opacity:.4;cursor:default}
+  .knapp:disabled:hover{border-color:var(--rule-strong)}
+  .knapp.primar{background:var(--primary-bg);color:var(--primary-fg);border-color:var(--primary-bg)}
+  .knapp.primar:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
+  .knapp svg{width:16px;height:16px;flex:none}
+  .kun-mobil{display:none}
+
+  /* Faner for tegninger */
+  .faner{display:flex;align-items:stretch;gap:2px;overflow-x:auto;scrollbar-width:thin;background:var(--bone);
+    padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+    border-bottom:1px solid var(--rule)}
+  .fane{display:flex;align-items:center;gap:2px;border:0;background:transparent;padding:0;flex:none;
+    border-bottom:2px solid transparent;color:var(--muted)}
+  .fane.aktiv{color:var(--ink);border-bottom-color:var(--heritage);background:var(--paper)}
+  .fane .fnavn{border:0;background:transparent;padding:9px 6px 9px 12px;font-weight:500;max-width:220px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fane .fslett{border:0;background:transparent;width:26px;height:26px;margin-right:4px;border-radius:2px;
+    color:var(--muted);font-size:16px;line-height:1}
+  .fane .fslett:hover{background:var(--rule);color:var(--ink)}
+  .ny-fane{border:0;background:transparent;color:var(--heritage-ink);font-weight:600;padding:9px 12px;flex:none;white-space:nowrap}
+  .ny-fane:hover{color:var(--ink)}
+
+  /* Hovedflate */
+  .hoved{display:grid;grid-template-columns:252px minmax(0,1fr);min-height:0}
+  .side{border-right:1px solid var(--rule);background:var(--paper);overflow-y:auto;display:flex;flex-direction:column;
+    padding:16px 14px;padding-left:max(14px, env(safe-area-inset-left, 0px));gap:22px}
+  .etikett{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 8px}
+  .verktoy{display:flex;flex-direction:column;gap:4px}
+  .vk{display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:10px;width:100%;text-align:left;
+    border:1px solid transparent;background:transparent;padding:6px 8px 6px 6px;border-radius:2px}
+  .vk:hover{background:var(--bone)}
+  .vk.aktiv{background:var(--active-bg);color:var(--active-fg);border-color:var(--active-bg)}
+  .vk .ikon{width:38px;height:38px;background:#fff;border-radius:2px;display:grid;place-items:center;border:1px solid var(--rule)}
+  .vk .ikon canvas{width:30px;height:30px}
+  .vk .ikon svg{width:20px;height:20px;color:#1A1A1A}
+  .vk .navn{font-weight:500;display:flex;flex-direction:column;line-height:1.2}
+  .vk .navn small{font-weight:400;font-size:11px;opacity:.6}
+  .vk .antall{font-variant-numeric:tabular-nums;font-size:12px;font-weight:600;min-width:24px;text-align:center;
+    padding:2px 6px;border-radius:2px;background:var(--bone);color:var(--ink)}
+  .vk.aktiv .antall{background:rgba(255,255,255,.16);color:inherit}
+  .vk .antall.null{opacity:.45}
+  .skille{height:1px;background:var(--rule);margin:4px 0}
+  .felt{display:flex;flex-direction:column;gap:6px}
+  .felt label{font-size:12px;color:var(--muted)}
+  .felt input[type=text]{border:1px solid var(--rule-strong);background:var(--surface);padding:8px 10px;border-radius:2px;width:100%}
+  .felt input[type=range]{width:100%;accent-color:var(--heritage)}
+  .seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
+  .seg button{border:0;background:var(--surface);padding:8px;font-weight:500}
+  .seg button+button{border-left:1px solid var(--rule-strong)}
+  .seg button.aktiv{background:var(--active-bg);color:var(--active-fg)}
+  .tips{font-size:12px;line-height:1.55;color:var(--muted);margin:0}
+  .tips kbd{font-family:var(--sans);font-size:11px;border:1px solid var(--rule-strong);border-bottom-width:2px;
+    padding:0 5px;border-radius:2px;color:var(--ink)}
+
+  /* Tegneflate */
+  .flate{position:relative;background:var(--canvas-bg);min-width:0;min-height:0;overflow:hidden;touch-action:none}
+  #lerret{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .flate.plasser #lerret{cursor:crosshair}
+  .flate.panorer #lerret{cursor:grabbing}
+  .zoom{position:absolute;right:max(14px, env(safe-area-inset-right, 0px));bottom:14px;display:flex;flex-direction:column;
+    background:var(--surface);border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
+  .zoom button{border:0;background:transparent;width:40px;height:40px;font-size:18px;line-height:1}
+  .zoom button+button{border-top:1px solid var(--rule)}
+  .zoom button:hover{background:var(--bone)}
+  .zoom button.tilpass{font-size:11px;font-weight:600;letter-spacing:.04em}
+  .hint{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:var(--surface);color:var(--ink);
+    border:1px solid var(--rule);padding:7px 12px;border-radius:2px;font-size:12.5px;white-space:nowrap;
+    pointer-events:none;max-width:calc(100% - 32px);overflow:hidden;text-overflow:ellipsis}
+  .hint b{font-weight:600}
+  .eksempel{position:absolute;left:max(14px, env(safe-area-inset-left, 0px));bottom:14px;max-width:min(420px, calc(100% - 90px));
+    background:var(--surface);border:1px solid var(--heritage);padding:10px 12px;border-radius:2px;font-size:12.5px;line-height:1.5;
+    display:flex;gap:10px;align-items:center}
+  .eksempel button{flex:none}
+  .meny{position:absolute;display:flex;background:var(--surface);border:1px solid var(--rule-strong);border-radius:2px;
+    box-shadow:0 1px 0 var(--rule);transform:translate(-50%,0);z-index:3}
+  .meny button{border:0;background:transparent;padding:9px 12px;font-weight:500;font-size:13px;display:flex;gap:6px;align-items:center;white-space:nowrap}
+  .meny button+button{border-left:1px solid var(--rule)}
+  .meny button:hover{background:var(--bone)}
+  .meny .slett{color:var(--danger)}
+  .tom{position:absolute;inset:0;display:grid;place-items:center;padding:24px}
+  .slipp{border:1.5px dashed var(--rule-strong);background:var(--surface);padding:40px 32px;text-align:center;max-width:460px;border-radius:2px}
+  .slipp h2{font-family:var(--display);font-weight:400;font-size:28px;margin:0 0 8px;text-wrap:balance}
+  .slipp p{color:var(--muted);margin:0 0 20px;line-height:1.55}
+  .dra-over .slipp-overlegg{display:grid}
+  .slipp-overlegg{display:none;position:fixed;inset:0;z-index:20;place-items:center;background:rgba(10,31,61,.55);color:#F5F2EC;
+    font-family:var(--display);font-size:30px;pointer-events:none}
+
+  /* Dialog og melding */
+  .modal-bak{position:fixed;inset:0;background:rgba(10,15,26,.45);display:grid;place-items:center;z-index:30;padding:16px}
+  .modal{background:var(--surface);border:1px solid var(--rule-strong);padding:22px;max-width:380px;width:100%;border-radius:2px}
+  .modal h3{font-family:var(--display);font-weight:500;font-size:20px;margin:0 0 8px}
+  .modal p{margin:0 0 18px;color:var(--muted);line-height:1.5}
+  .modal .rad{display:flex;gap:8px;justify-content:flex-end}
+  .knapp.fare{background:var(--danger);border-color:var(--danger);color:#fff}
+  .melding{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:40;
+    background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:2px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none}
+  .melding.vis{opacity:1}
+  .jobber{position:fixed;inset:0;z-index:35;display:grid;place-items:center;background:rgba(10,15,26,.35)}
+  .jobber div{background:var(--surface);border:1px solid var(--rule-strong);padding:16px 22px;border-radius:2px;font-weight:500}
+
+  /* Mobil og nettbrett på høykant */
+  @media (max-width: 780px){
+    .merke span{display:none}
+    .merke b{font-size:19px}
+    .knapp{padding:9px 11px}
+    .knapp .lang{display:none}
+    .kun-mobil{display:inline-flex}
+    .prosjekt{display:none}
+    .hoved{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+    .side{order:2;border-right:0;border-top:1px solid var(--rule);overflow:visible;padding:8px 0;gap:0;
+      padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px))}
+    .side > .gruppe-verktoy .etikett{display:none}
+    .verktoy{flex-direction:row;overflow-x:auto;gap:4px;padding-left:max(10px, env(safe-area-inset-left, 0px));
+      padding-right:max(10px, env(safe-area-inset-right, 0px));scrollbar-width:none}
+    .verktoy::-webkit-scrollbar{display:none}
+    .vk{grid-template-columns:auto;justify-items:center;gap:4px;width:auto;min-width:62px;padding:6px 6px;position:relative}
+    .vk .navn{font-size:11px;text-align:center}
+    .vk .lang{display:none}
+    .vk .navn small{display:none}
+    .vk .antall{position:absolute;top:2px;right:6px;min-width:0;padding:0 5px;font-size:10.5px}
+    .skille{display:none}
+    .side .gruppe-innst,.side .gruppe-tips{display:none}
+    body.vis-innst .side .gruppe-innst{display:flex;position:fixed;left:0;right:0;top:56px;z-index:25;background:var(--paper);
+      border-bottom:1px solid var(--rule-strong);padding:16px;padding-left:max(16px, env(safe-area-inset-left, 0px));
+      padding-right:max(16px, env(safe-area-inset-right, 0px));flex-direction:column;gap:16px}
+    .hint{top:10px;font-size:12px}
+    .eksempel{bottom:10px;left:10px;font-size:12px}
+    .zoom{bottom:10px;right:10px}
+  }
+  @media (max-width: 380px){ .knapp{padding:8px 9px} .knapper{gap:6px} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
+</style>
+</head>
+<body>
+<header class="topp">
+  <div class="merke"><b>Elplan</b><span>TIGERSTADEN ELEKTRO</span></div>
+  <div class="prosjekt"><input id="prosjektnavn" type="text" placeholder="Prosjekt eller adresse, f.eks. Thereses gate 12, H0301" aria-label="Prosjekt eller adresse"></div>
+  <div class="knapper">
+    <button class="knapp kun-mobil" id="knapp-innst" aria-label="Innstillinger">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    </button>
+    <button class="knapp" id="knapp-angre" title="Angre (Ctrl+Z)" aria-label="Angre">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+      <span class="lang">Angre</span>
+    </button>
+    <button class="knapp" id="knapp-last-opp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+      <span class="lang">Last opp tegning</span>
+    </button>
+    <button class="knapp primar" id="knapp-pdf">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/></svg>
+      <span>PDF</span>
+    </button>
+  </div>
+</header>
+
+<nav class="faner" id="faner" aria-label="Tegninger"></nav>
+
+<main class="hoved">
+  <aside class="side">
+    <div class="gruppe-verktoy">
+      <p class="etikett">Symboler</p>
+      <div class="verktoy" id="verktoy"></div>
+    </div>
+    <div class="gruppe-innst felt" style="gap:18px">
+      <div class="felt kun-mobil-felt" id="felt-prosjekt-mobil" hidden>
+        <label for="prosjektnavn-mobil">Prosjekt eller adresse</label>
+        <input id="prosjektnavn-mobil" type="text" placeholder="F.eks. Thereses gate 12, H0301">
+      </div>
+      <div class="felt">
+        <label for="arknavn">Navn på tegningen</label>
+        <input id="arknavn" type="text" placeholder="F.eks. Leilighet H0301">
+      </div>
+      <div class="felt">
+        <label for="storrelse">Symbolstørrelse</label>
+        <input id="storrelse" type="range" min="0.4" max="2.5" step="0.05" value="1">
+      </div>
+      <div class="felt">
+        <label>Papir i PDF</label>
+        <div class="seg" id="papir">
+          <button data-papir="A4" type="button">A4</button>
+          <button data-papir="A3" type="button">A3</button>
+        </div>
+      </div>
+    </div>
+    <div class="gruppe-tips">
+      <p class="etikett">Slik gjør du det</p>
+      <p class="tips">Velg et symbol og trykk på tegningen. Trykk på et symbol for å flytte, rotere eller slette det. Dra i tegningen for å flytte rundt, og bruk hjulet eller to fingre for å zoome.<br><br>
+      <kbd>1</kbd>–<kbd>5</kbd> velger symbol · <kbd>Esc</kbd> velg/flytt · <kbd>R</kbd> roter · <kbd>Del</kbd> slett · <kbd>Ctrl</kbd>+<kbd>Z</kbd> angre</p>
+    </div>
+  </aside>
+
+  <section class="flate" id="flate">
+    <canvas id="lerret" aria-label="Plantegning"></canvas>
+    <div class="hint" id="hint" hidden></div>
+    <div class="meny" id="meny" hidden>
+      <button id="meny-roter" type="button">↻ Roter</button>
+      <button id="meny-slett" class="slett" type="button">Slett</button>
+    </div>
+    <div class="eksempel" id="eksempel" hidden>
+      <span>Dette er en eksempeltegning. Last opp din egen plantegning for å starte.</span>
+      <button class="knapp primar" id="eksempel-last-opp" type="button">Last opp</button>
+    </div>
+    <div class="zoom" id="zoom">
+      <button id="zoom-inn" type="button" aria-label="Zoom inn">+</button>
+      <button id="zoom-ut" type="button" aria-label="Zoom ut">−</button>
+      <button id="zoom-tilpass" class="tilpass" type="button" aria-label="Tilpass til skjermen">FIT</button>
+    </div>
+    <div class="tom" id="tom" hidden>
+      <div class="slipp">
+        <h2>Last opp en plantegning</h2>
+        <p>PDF, JPG eller PNG. Du kan også dra filen hit. En PDF med flere sider blir én tegning per side.</p>
+        <button class="knapp primar" id="tom-last-opp" type="button">Velg fil</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<input type="file" id="fil" accept="application/pdf,image/*" multiple hidden>
+<div class="slipp-overlegg">Slipp tegningen her</div>
+<div class="melding" id="melding" role="status" aria-live="polite"></div>
+<div id="modal-rot"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+(() => {
+"use strict";
+
+/* ---------- Symbolene ---------- */
+// Legg til en linje her for å få et nytt symbol i verktøylisten, i PDF-en og i mengdelisten.
+const TYPER = [
+  { id: "spot",   navn: "Spot",        info: "Innfelt downlight", farge: "#C26A00" },
+  { id: "lampe",  navn: "Lampepunkt",  info: "Takuttak for lampe", farge: "#1F5FAF" },
+  { id: "stikk",  navn: "Stikkontakt", info: "Med jord",           farge: "#B3261E" },
+  { id: "termo",  navn: "Termostat",   info: "Varmekabler",        farge: "#2E7D4F" },
+  { id: "dimmer", navn: "Dimmer",      info: "Lysstyring",         farge: "#6B3FA0" },
+];
+const TYPE = Object.fromEntries(TYPER.map(t => [t.id, t]));
+
+// Tegner ett symbol med sentrum i (x,y). r er symbolets "radius" i tegningens enheter.
+// Stikkontakten står mot veggen nedover ved rot = 0; roter for andre vegger.
+function tegnSymbol(ctx, type, x, y, r, rot = 0, valgt = false) {
+  const t = TYPE[type]; if (!t) return;
+  const f = t.farge, TAU = Math.PI * 2;
+  ctx.save();
+  ctx.translate(x, y);
+  if (valgt) {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(0, 0, r * 1.6, 0, TAU);
+    ctx.fillStyle = "rgba(184,137,59,.22)"; ctx.fill();
+    ctx.setLineDash([r * .35, r * .25]); ctx.lineWidth = Math.max(1, r * .09);
+    ctx.strokeStyle = "#B8893B"; ctx.stroke();
+    ctx.restore();
+  }
+  ctx.rotate(rot * Math.PI / 180);
+  ctx.lineWidth = Math.max(1, r * .17);
+  ctx.strokeStyle = f; ctx.fillStyle = "#fff";
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  const sirkel = (rr) => { ctx.beginPath(); ctx.arc(0, 0, rr, 0, TAU); ctx.fill(); ctx.stroke(); };
+  const linje = (x1, y1, x2, y2) => { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); };
+  switch (type) {
+    case "spot": {
+      sirkel(r * .78);
+      ctx.beginPath(); ctx.arc(0, 0, r * .32, 0, TAU); ctx.fillStyle = f; ctx.fill();
+      break;
+    }
+    case "lampe": {
+      sirkel(r);
+      const d = r * .7071;
+      linje(-d, -d, d, d); linje(-d, d, d, -d);
+      break;
+    }
+    case "stikk": {
+      linje(0, r * .2, 0, r * 1.05);                      // ledning mot vegg
+      ctx.beginPath(); ctx.arc(0, r * .2, r * .82, Math.PI, 0); ctx.closePath();
+      ctx.fill(); ctx.stroke();                            // halvsirkel
+      linje(-r * .82, -r * .9, r * .82, -r * .9);          // jord
+      break;
+    }
+    case "termo": {
+      const s = r * .85;
+      ctx.beginPath(); ctx.rect(-s, -s, s * 2, s * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = f; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.font = `700 ${r * 1.15}px Helvetica, Arial, sans-serif`;
+      ctx.fillText("T", 0, r * .06);
+      break;
+    }
+    case "dimmer": {
+      sirkel(r * .8);
+      const a = r * .98;
+      linje(-a, a, a, -a);
+      const h = r * .42;                                   // pilspiss
+      ctx.beginPath(); ctx.moveTo(a - h, -a); ctx.lineTo(a, -a); ctx.lineTo(a, -a + h); ctx.stroke();
+      break;
+    }
+  }
+  ctx.restore();
+}
+
+/* ---------- Tilstand ---------- */
+const NOKKEL = "elplan-v1";
+let S = { prosjekt: "", papir: "A4", aktiv: null, ark: [] };
+let verktoy = "velg";          // "velg" eller en symboltype
+let valgt = null;              // id til valgt symbol
+let view = { s: 1, x: 0, y: 0 };
+const bilder = new Map();      // ark-id -> HTMLImageElement
+let historikk = [];
+const uid = () => Math.random().toString(36).slice(2, 10);
+const aktivtArk = () => S.ark.find(a => a.id === S.aktiv) || null;
+const radius = (a) => Math.max(a.w, a.h) * 0.011 * (a.str || 1);
+
+/* ---------- Lagring i nettleseren (IndexedDB) ---------- */
+const lager = {
+  db: null,
+  async apne() {
+    if (this.db) return this.db;
+    this.db = await new Promise((ok, feil) => {
+      const r = indexedDB.open("elplan", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("kv");
+      r.onsuccess = () => ok(r.result); r.onerror = () => feil(r.error);
+    });
+    return this.db;
+  },
+  async hent(k) {
+    try {
+      const db = await this.apne();
+      return await new Promise((ok, feil) => {
+        const r = db.transaction("kv").objectStore("kv").get(k);
+        r.onsuccess = () => ok(r.result); r.onerror = () => feil(r.error);
+      });
+    } catch { return undefined; }
+  },
+  async sett(k, v) {
+    try {
+      const db = await this.apne();
+      await new Promise((ok, feil) => {
+        const tx = db.transaction("kv", "readwrite");
+        tx.objectStore("kv").put(v, k);
+        tx.oncomplete = ok; tx.onerror = () => feil(tx.error);
+      });
+    } catch { /* lagring er en bonus, appen virker uten */ }
+  },
+};
+let lagreTimer = null;
+function lagre() {
+  clearTimeout(lagreTimer);
+  lagreTimer = setTimeout(() => lager.sett(NOKKEL, S), 400);
+}
+
+/* ---------- Angre ---------- */
+function oyeblikk() {
+  return JSON.stringify(S.ark.map(a => ({ id: a.id, sym: a.sym, str: a.str })));
+}
+function husk(snap = oyeblikk()) {
+  historikk.push(snap);
+  if (historikk.length > 120) historikk.shift();
+  oppdaterAngre();
+}
+function angre() {
+  const snap = historikk.pop();
+  if (!snap) return;
+  const data = JSON.parse(snap);
+  for (const d of data) {
+    const a = S.ark.find(x => x.id === d.id);
+    if (a) { a.sym = d.sym; a.str = d.str; }
+  }
+  valgt = null;
+  lagre(); oppdaterAlt();
+}
+function endre(fn) { husk(); fn(); lagre(); oppdaterAlt(); }
+
+/* ---------- Elementer ---------- */
+const $ = (id) => document.getElementById(id);
+const lerret = $("lerret"), ctx = lerret.getContext("2d"), flate = $("flate");
+let dpr = 1, bw = 0, bh = 0;
+
+/* ---------- Verktøylisten ---------- */
+function lagIkon(type, px = 30) {
+  const c = document.createElement("canvas");
+  const k = 2; c.width = px * k; c.height = px * k;
+  const g = c.getContext("2d");
+  tegnSymbol(g, type, px * k / 2, px * k / 2, px * k * .3, 0);
+  return c;
+}
+function byggVerktoy() {
+  const v = $("verktoy");
+  v.innerHTML = "";
+  const velg = document.createElement("button");
+  velg.className = "vk"; velg.dataset.v = "velg"; velg.type = "button";
+  velg.innerHTML = `<span class="ikon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 3l14 8-6 1.5L10 19z"/></svg></span>
+    <span class="navn">Velg<span class="lang"> og flytt</span><small>Esc</small></span><span></span>`;
+  v.append(velg);
+  const sk = document.createElement("div"); sk.className = "skille"; v.append(sk);
+  TYPER.forEach((t, i) => {
+    const b = document.createElement("button");
+    b.className = "vk"; b.dataset.v = t.id; b.type = "button";
+    const ikon = document.createElement("span"); ikon.className = "ikon"; ikon.append(lagIkon(t.id));
+    const navn = document.createElement("span"); navn.className = "navn";
+    navn.innerHTML = `${t.navn}<small>${t.info} · ${i + 1}</small>`;
+    const ant = document.createElement("span"); ant.className = "antall"; ant.dataset.antall = t.id;
+    b.append(ikon, navn, ant);
+    v.append(b);
+  });
+  v.addEventListener("click", (e) => {
+    const b = e.target.closest(".vk"); if (!b) return;
+    velgVerktoy(b.dataset.v);
+  });
+}
+function velgVerktoy(v) {
+  verktoy = (verktoy === v && v !== "velg") ? "velg" : v;
+  if (verktoy !== "velg") valgt = null;
+  oppdaterAlt();
+}
+
+/* ---------- Oppdatering av grensesnittet ---------- */
+function oppdaterAlt() {
+  const a = aktivtArk();
+  document.querySelectorAll(".vk").forEach(b => b.classList.toggle("aktiv", b.dataset.v === verktoy));
+  for (const t of TYPER) {
+    const n = a ? a.sym.filter(s => s.t === t.id).length : 0;
+    const el = document.querySelector(`[data-antall="${t.id}"]`);
+    if (el) { el.textContent = n; el.classList.toggle("null", n === 0); }
+  }
+  flate.classList.toggle("plasser", verktoy !== "velg");
+  $("tom").hidden = !!a;
+  $("zoom").hidden = !a;
+  $("eksempel").hidden = !(a && a.eksempel);
+  $("arknavn").value = a ? a.navn : "";
+  $("arknavn").disabled = !a;
+  $("storrelse").value = a ? (a.str || 1) : 1;
+  $("storrelse").disabled = !a;
+  if (document.activeElement !== $("prosjektnavn")) $("prosjektnavn").value = S.prosjekt;
+  if (document.activeElement !== $("prosjektnavn-mobil")) $("prosjektnavn-mobil").value = S.prosjekt;
+  document.querySelectorAll("#papir button").forEach(b => b.classList.toggle("aktiv", b.dataset.papir === S.papir));
+  $("knapp-pdf").disabled = !S.ark.length;
+  oppdaterHint();
+  oppdaterAngre();
+  byggFaner();
+  tegn();
+}
+function oppdaterAngre() { $("knapp-angre").disabled = historikk.length === 0; }
+function oppdaterHint() {
+  const h = $("hint");
+  if (!aktivtArk()) { h.hidden = true; return; }
+  h.hidden = false;
+  if (verktoy === "velg") h.innerHTML = valgt ? "Dra symbolet for å flytte det" : "Velg et symbol til venstre, og trykk på tegningen";
+  else h.innerHTML = `Trykk på tegningen for å plassere <b>${TYPE[verktoy].navn.toLowerCase()}</b>`;
+  if (matchMedia("(max-width: 780px)").matches && verktoy === "velg" && !valgt) h.textContent = "Velg et symbol nederst, og trykk på tegningen";
+}
+function byggFaner() {
+  const f = $("faner");
+  f.innerHTML = "";
+  for (const a of S.ark) {
+    const d = document.createElement("div");
+    d.className = "fane" + (a.id === S.aktiv ? " aktiv" : "");
+    const n = document.createElement("button"); n.type = "button"; n.className = "fnavn"; n.textContent = a.navn || "Uten navn";
+    n.addEventListener("click", () => byttArk(a.id));
+    const x = document.createElement("button"); x.type = "button"; x.className = "fslett"; x.textContent = "×";
+    x.setAttribute("aria-label", `Fjern ${a.navn}`);
+    x.addEventListener("click", () => sporSlettArk(a.id));
+    d.append(n, x); f.append(d);
+  }
+  const ny = document.createElement("button"); ny.type = "button"; ny.className = "ny-fane";
+  ny.textContent = S.ark.length ? "+ Legg til tegning" : "+ Last opp tegning";
+  ny.addEventListener("click", () => $("fil").click());
+  f.append(ny);
+}
+function byttArk(id) {
+  S.aktiv = id; valgt = null; lagre();
+  tilpass(); oppdaterAlt();
+}
+function sporSlettArk(id) {
+  const a = S.ark.find(x => x.id === id); if (!a) return;
+  const n = a.sym.length;
+  dialog({
+    tittel: "Fjerne tegningen?",
+    tekst: `«${a.navn}» og ${n} ${n === 1 ? "symbol" : "symboler"} blir fjernet. Dette kan ikke angres.`,
+    ja: "Fjern", fare: true,
+    vedJa: () => {
+      const i = S.ark.indexOf(a);
+      S.ark.splice(i, 1); bilder.delete(a.id);
+      if (S.aktiv === id) S.aktiv = S.ark[Math.max(0, i - 1)]?.id || null;
+      historikk = []; valgt = null;
+      lagre(); tilpass(); oppdaterAlt();
+    },
+  });
+}
+
+/* ---------- Dialog, melding, venting ---------- */
+function dialog({ tittel, tekst, ja, nei = "Avbryt", fare = false, vedJa }) {
+  const rot = $("modal-rot");
+  rot.innerHTML = `<div class="modal-bak"><div class="modal" role="dialog" aria-modal="true">
+    <h3></h3><p></p><div class="rad"><button class="knapp" data-nei type="button"></button>
+    <button class="knapp ${fare ? "fare" : "primar"}" data-ja type="button"></button></div></div></div>`;
+  rot.querySelector("h3").textContent = tittel;
+  rot.querySelector("p").textContent = tekst;
+  rot.querySelector("[data-nei]").textContent = nei;
+  rot.querySelector("[data-ja]").textContent = ja;
+  const lukk = () => { rot.innerHTML = ""; };
+  rot.querySelector("[data-nei]").onclick = lukk;
+  rot.querySelector(".modal-bak").onclick = (e) => { if (e.target.classList.contains("modal-bak")) lukk(); };
+  rot.querySelector("[data-ja]").onclick = () => { lukk(); vedJa(); };
+  rot.querySelector("[data-ja]").focus();
+}
+let meldingTimer;
+function melding(t) {
+  const m = $("melding"); m.textContent = t; m.classList.add("vis");
+  clearTimeout(meldingTimer); meldingTimer = setTimeout(() => m.classList.remove("vis"), 2600);
+}
+function venter(t) {
+  let el = document.querySelector(".jobber");
+  if (t === false) { el?.remove(); return; }
+  if (!el) { el = document.createElement("div"); el.className = "jobber"; el.innerHTML = "<div></div>"; document.body.append(el); }
+  el.firstChild.textContent = t;
+}
+
+/* ---------- Tegning på skjermen ---------- */
+function storrelse() {
+  const r = flate.getBoundingClientRect();
+  dpr = window.devicePixelRatio || 1;
+  bw = r.width; bh = r.height;
+  lerret.width = Math.round(bw * dpr); lerret.height = Math.round(bh * dpr);
+  tegn();
+}
+function tilpass() {
+  const a = aktivtArk(); if (!a || !bw) return;
+  const s = Math.min(bw / a.w, bh / a.h) * 0.92;
+  view = { s, x: (bw - a.w * s) / 2, y: (bh - a.h * s) / 2 };
+  tegn();
+}
+function zoomVed(mx, my, k) {
+  const ns = Math.min(Math.max(view.s * k, 0.02), 20);
+  const f = ns / view.s;
+  view.x = mx - (mx - view.x) * f; view.y = my - (my - view.y) * f; view.s = ns;
+  tegn();
+}
+function tilBilde(sx, sy) { return { x: (sx - view.x) / view.s, y: (sy - view.y) / view.s }; }
+
+let tegnPlanlagt = false;
+function tegn() {
+  if (tegnPlanlagt) return;
+  tegnPlanlagt = true;
+  requestAnimationFrame(() => { tegnPlanlagt = false; tegnNa(); });
+}
+function tegnNa() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, bw, bh);
+  const a = aktivtArk();
+  const meny = $("meny");
+  if (!a) { meny.hidden = true; return; }
+  const img = bilder.get(a.id);
+  ctx.save();
+  ctx.translate(view.x, view.y); ctx.scale(view.s, view.s);
+  ctx.shadowColor = "rgba(0,0,0,.18)"; ctx.shadowBlur = 18; ctx.shadowOffsetY = 2;
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, a.w, a.h);
+  ctx.shadowColor = "transparent";
+  if (img && img.complete) { ctx.imageSmoothingQuality = "high"; ctx.drawImage(img, 0, 0, a.w, a.h); }
+  const r = radius(a);
+  for (const s of a.sym) tegnSymbol(ctx, s.t, s.x, s.y, r, s.rot || 0, s.id === valgt);
+  ctx.restore();
+
+  const s = valgt && a.sym.find(x => x.id === valgt);
+  if (s && !(gest && gest.type === "drag" && gest.flyttet)) {
+    const px = view.x + s.x * view.s, py = view.y + (s.y + r * 1.7) * view.s + 6;
+    meny.hidden = false;
+    const mw = meny.offsetWidth || 150;
+    meny.style.left = Math.min(Math.max(px, mw / 2 + 8), bw - mw / 2 - 8) + "px";
+    meny.style.top = Math.min(py, bh - 52) + "px";
+  } else meny.hidden = true;
+}
+
+/* ---------- Peker: plassere, flytte, panorere, zoome ---------- */
+const pekere = new Map();
+let gest = null;
+function lokal(e) { const r = lerret.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+function treff(p) {
+  const a = aktivtArk(); if (!a) return null;
+  const r = radius(a) * 1.35;
+  const minR = 16 / view.s;                 // lett å treffe også når man har zoomet ut
+  const R = Math.max(r, minR);
+  let best = null, bd = Infinity;
+  for (const s of a.sym) {
+    const d = Math.hypot(s.x - p.x, s.y - p.y);
+    if (d < R && d < bd) { best = s; bd = d; }
+  }
+  return best;
+}
+lerret.addEventListener("pointerdown", (e) => {
+  if (!aktivtArk()) return;
+  lerret.setPointerCapture(e.pointerId);
+  const p = lokal(e);
+  pekere.set(e.pointerId, p);
+  if (pekere.size === 2) {
+    const [a, b] = [...pekere.values()];
+    gest = { type: "pinch", d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, v: { ...view } };
+    return;
+  }
+  if (pekere.size > 2) return;
+  const bp = tilBilde(p.x, p.y);
+  const hit = treff(bp);
+  if (hit) {
+    valgt = hit.id;
+    gest = { type: "drag", id: hit.id, sx: p.x, sy: p.y, ox: hit.x - bp.x, oy: hit.y - bp.y, flyttet: false, snap: oyeblikk() };
+  } else {
+    gest = { type: "tap", sx: p.x, sy: p.y, vx: view.x, vy: view.y };
+  }
+  oppdaterHint(); tegn();
+});
+lerret.addEventListener("pointermove", (e) => {
+  if (!pekere.has(e.pointerId) || !gest) return;
+  const p = lokal(e);
+  pekere.set(e.pointerId, p);
+  if (gest.type === "pinch") {
+    if (pekere.size < 2) return;
+    const [a, b] = [...pekere.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    const ns = Math.min(Math.max(gest.v.s * d / gest.d, 0.02), 20), f = ns / gest.v.s;
+    view.s = ns;
+    view.x = mx - (gest.mx - gest.v.x) * f;
+    view.y = my - (gest.my - gest.v.y) * f;
+    tegn(); return;
+  }
+  const dx = p.x - gest.sx, dy = p.y - gest.sy, dist = Math.hypot(dx, dy);
+  if (gest.type === "tap" && dist > 6) { gest.type = "pan"; flate.classList.add("panorer"); }
+  if (gest.type === "pan") { view.x = gest.vx + dx; view.y = gest.vy + dy; tegn(); return; }
+  if (gest.type === "drag") {
+    if (!gest.flyttet && dist < 4) return;
+    if (!gest.flyttet) { gest.flyttet = true; husk(gest.snap); }
+    const a = aktivtArk(), s = a.sym.find(x => x.id === gest.id);
+    const bp = tilBilde(p.x, p.y);
+    s.x = Math.min(Math.max(bp.x + gest.ox, 0), a.w);
+    s.y = Math.min(Math.max(bp.y + gest.oy, 0), a.h);
+    tegn();
+  }
+});
+function slipp(e) {
+  if (!pekere.has(e.pointerId)) return;
+  pekere.delete(e.pointerId);
+  flate.classList.remove("panorer");
+  if (!gest) return;
+  if (gest.type === "pinch") { if (pekere.size === 0) gest = null; else gest = { type: "ingen" }; return; }
+  if (e.type === "pointercancel") { gest = null; tegn(); return; }
+  const a = aktivtArk();
+  if (gest.type === "tap") {
+    const bp = tilBilde(gest.sx, gest.sy);
+    if (verktoy !== "velg") {
+      if (bp.x >= 0 && bp.y >= 0 && bp.x <= a.w && bp.y <= a.h) {
+        endre(() => { a.sym.push({ id: uid(), t: verktoy, x: bp.x, y: bp.y, rot: 0 }); });
+      }
+    } else { valgt = null; }
+  } else if (gest.type === "drag" && gest.flyttet) {
+    lagre(); oppdaterAlt();
+  }
+  if (pekere.size === 0) gest = null;
+  oppdaterHint(); tegn();
+}
+lerret.addEventListener("pointerup", slipp);
+lerret.addEventListener("pointercancel", slipp);
+lerret.addEventListener("wheel", (e) => {
+  if (!aktivtArk()) return;
+  e.preventDefault();
+  const p = lokal(e);
+  const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+  zoomVed(p.x, p.y, Math.exp(-dy * (e.ctrlKey ? 0.01 : 0.0018)));
+}, { passive: false });
+
+function roterValgt() {
+  const a = aktivtArk(), s = a && a.sym.find(x => x.id === valgt); if (!s) return;
+  endre(() => { s.rot = ((s.rot || 0) + 90) % 360; });
+}
+function slettValgt() {
+  const a = aktivtArk(); if (!a || !valgt) return;
+  endre(() => { a.sym = a.sym.filter(x => x.id !== valgt); valgt = null; });
+}
+$("meny-roter").addEventListener("click", roterValgt);
+$("meny-slett").addEventListener("click", slettValgt);
+$("zoom-inn").addEventListener("click", () => zoomVed(bw / 2, bh / 2, 1.3));
+$("zoom-ut").addEventListener("click", () => zoomVed(bw / 2, bh / 2, 1 / 1.3));
+$("zoom-tilpass").addEventListener("click", tilpass);
+
+document.addEventListener("keydown", (e) => {
+  if (e.target.matches("input, textarea")) return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); angre(); return; }
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const n = parseInt(e.key, 10);
+  if (n >= 1 && n <= TYPER.length) { verktoy = "velg"; velgVerktoy(TYPER[n - 1].id); return; }
+  if (e.key === "Escape") { verktoy = "velg"; valgt = null; oppdaterAlt(); return; }
+  if ((e.key === "Delete" || e.key === "Backspace") && valgt) { e.preventDefault(); slettValgt(); return; }
+  if (e.key.toLowerCase() === "r" && valgt) { roterValgt(); }
+});
+
+/* ---------- Opplasting ---------- */
+async function lastInnFiler(filer) {
+  filer = [...filer].filter(f => f.type === "application/pdf" || /\.pdf$/i.test(f.name) || f.type.startsWith("image/"));
+  if (!filer.length) { melding("Velg en PDF, JPG eller PNG"); return; }
+  const nye = [];
+  try {
+    for (const f of filer) {
+      const base = f.name.replace(/\.[^.]+$/, "");
+      if (f.type === "application/pdf" || /\.pdf$/i.test(f.name)) {
+        venter(`Leser ${f.name} …`);
+        const sider = await pdfTilBilder(f);
+        sider.forEach((s, i) => nye.push({ navn: sider.length > 1 ? `${base} – side ${i + 1}` : base, ...s }));
+      } else {
+        venter(`Leser ${f.name} …`);
+        nye.push({ navn: base, ...(await bildeFil(f)) });
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    venter(false);
+    melding("Klarte ikke å lese filen. Prøv en annen PDF eller et bilde.");
+    return;
+  }
+  venter(false);
+  if (!nye.length) return;
+  // Eksempelet byttes ut når du laster opp din første egne tegning.
+  S.ark = S.ark.filter(a => !a.eksempel);
+  for (const n of nye) {
+    const a = { id: uid(), navn: n.navn, src: n.src, w: n.w, h: n.h, str: 1, sym: [] };
+    S.ark.push(a);
+    await lastBilde(a);
+  }
+  S.aktiv = S.ark[S.ark.length - nye.length].id;
+  if (verktoy === "velg") verktoy = "spot";
+  valgt = null; historikk = [];
+  lagre(); tilpass(); oppdaterAlt();
+  melding(nye.length === 1 ? "Tegningen er lagt til" : `${nye.length} tegninger lagt til`);
+}
+function lesSomDataUrl(f) {
+  return new Promise((ok, feil) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => feil(r.error); r.readAsDataURL(f); });
+}
+function lastBildeFra(src) {
+  return new Promise((ok, feil) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => feil(new Error("Bildet kunne ikke lastes")); i.src = src; });
+}
+async function bildeFil(f) {
+  const src = await lesSomDataUrl(f);
+  const img = await lastBildeFra(src);
+  let w = img.naturalWidth, h = img.naturalHeight;
+  const maks = 4000;
+  if (Math.max(w, h) > maks) {
+    const k = maks / Math.max(w, h);
+    const c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+    g.imageSmoothingQuality = "high"; g.drawImage(img, 0, 0, c.width, c.height);
+    return { src: c.toDataURL("image/jpeg", 0.9), w: c.width, h: c.height };
+  }
+  return { src, w, h };
+}
+async function pdfTilBilder(f) {
+  const lib = window.pdfjsLib;
+  if (!lib) throw new Error("PDF-leseren er ikke lastet");
+  lib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const data = new Uint8Array(await f.arrayBuffer());
+  const pdf = await lib.getDocument({ data }).promise;
+  const ut = [];
+  const antall = Math.min(pdf.numPages, 30);
+  for (let i = 1; i <= antall; i++) {
+    venter(`Leser side ${i} av ${antall} …`);
+    const side = await pdf.getPage(i);
+    const v1 = side.getViewport({ scale: 1 });
+    const k = Math.min(3200 / Math.max(v1.width, v1.height), 5);
+    const vp = side.getViewport({ scale: k });
+    const c = document.createElement("canvas");
+    c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+    await side.render({ canvasContext: g, viewport: vp }).promise;
+    ut.push({ src: c.toDataURL("image/png"), w: c.width, h: c.height });
+  }
+  return ut;
+}
+async function lastBilde(a) {
+  try { bilder.set(a.id, await lastBildeFra(a.src)); } catch { /* tegningen vises som blankt ark */ }
+}
+$("fil").addEventListener("change", (e) => { lastInnFiler(e.target.files); e.target.value = ""; });
+["knapp-last-opp", "tom-last-opp", "eksempel-last-opp"].forEach(id => $(id).addEventListener("click", () => $("fil").click()));
+let draTeller = 0;
+window.addEventListener("dragenter", (e) => { if ([...e.dataTransfer.types].includes("Files")) { draTeller++; document.body.classList.add("dra-over"); } });
+window.addEventListener("dragleave", () => { if (--draTeller <= 0) { draTeller = 0; document.body.classList.remove("dra-over"); } });
+window.addEventListener("dragover", (e) => e.preventDefault());
+window.addEventListener("drop", (e) => {
+  e.preventDefault(); draTeller = 0; document.body.classList.remove("dra-over");
+  if (e.dataTransfer.files.length) lastInnFiler(e.dataTransfer.files);
+});
+
+/* ---------- Felt i sidepanelet ---------- */
+function settProsjekt(v) { S.prosjekt = v; lagre(); }
+$("prosjektnavn").addEventListener("input", (e) => settProsjekt(e.target.value));
+$("prosjektnavn-mobil").addEventListener("input", (e) => settProsjekt(e.target.value));
+$("arknavn").addEventListener("input", (e) => { const a = aktivtArk(); if (!a) return; a.navn = e.target.value; lagre(); byggFaner(); });
+let strSnap = null;
+$("storrelse").addEventListener("pointerdown", () => { strSnap = oyeblikk(); });
+$("storrelse").addEventListener("input", (e) => {
+  const a = aktivtArk(); if (!a) return;
+  if (strSnap) { husk(strSnap); strSnap = null; }
+  a.str = parseFloat(e.target.value); lagre(); tegn();
+});
+$("papir").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  S.papir = b.dataset.papir; lagre(); oppdaterAlt();
+});
+$("knapp-angre").addEventListener("click", angre);
+$("knapp-innst").addEventListener("click", () => {
+  document.body.classList.toggle("vis-innst");
+  $("felt-prosjekt-mobil").hidden = false;
+});
+lerret.addEventListener("pointerdown", () => document.body.classList.remove("vis-innst"));
+
+/* ---------- PDF-eksport ---------- */
+function komposittBilde(a) {
+  const img = bilder.get(a.id);
+  const maks = Math.max(a.w, a.h);
+  let k = 1;
+  if (maks > 4200) k = 4200 / maks;
+  if (maks < 2600) k = 2600 / maks;
+  const c = document.createElement("canvas");
+  c.width = Math.round(a.w * k); c.height = Math.round(a.h * k);
+  const g = c.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height);
+  g.imageSmoothingQuality = "high";
+  if (img) g.drawImage(img, 0, 0, c.width, c.height);
+  g.scale(k, k);
+  const r = radius(a);
+  for (const s of a.sym) tegnSymbol(g, s.t, s.x, s.y, r, s.rot || 0, false);
+  return c.toDataURL("image/jpeg", 0.92);
+}
+function ikonData(type) {
+  const c = document.createElement("canvas"); c.width = c.height = 160;
+  const g = c.getContext("2d");
+  tegnSymbol(g, type, 80, 80, 52, 0);
+  return c.toDataURL("image/png");
+}
+function dato() {
+  return new Date().toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
+}
+function telling(a) {
+  const n = {}; for (const t of TYPER) n[t.id] = 0;
+  for (const s of a.sym) if (n[s.t] !== undefined) n[s.t]++;
+  return n;
+}
+async function eksporter() {
+  if (!S.ark.length) return;
+  if (!window.jspdf) { melding("PDF-verktøyet er ikke lastet. Sjekk nettforbindelsen og prøv igjen."); return; }
+  venter("Lager PDF …");
+  await new Promise(r => setTimeout(r, 30));
+  try {
+    const { jsPDF } = window.jspdf;
+    const fmt = S.papir.toLowerCase();
+    const ikoner = Object.fromEntries(TYPER.map(t => [t.id, ikonData(t.id)]));
+    const tittel = S.prosjekt.trim() || "Elplan";
+    const dag = dato();
+    const totalSider = S.ark.length + (S.ark.length > 1 ? 1 : 0);
+    let doc = null;
+    S.ark.forEach((a, i) => {
+      const ligg = a.w >= a.h ? "landscape" : "portrait";
+      if (!doc) doc = new jsPDF({ orientation: ligg, unit: "mm", format: fmt, compress: true });
+      else doc.addPage(fmt, ligg);
+      const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+      const m = fmt === "a3" ? 14 : 10;
+      // Topptekst
+      doc.setTextColor(26, 26, 26);
+      doc.setFont("helvetica", "bold"); doc.setFontSize(fmt === "a3" ? 17 : 14);
+      doc.text(tittel, m, m + 5);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(fmt === "a3" ? 11.5 : 10);
+      doc.setTextColor(95, 95, 95);
+      doc.text(a.navn || "Tegning", m, m + 10.5);
+      doc.setFontSize(8.5);
+      doc.text(`ELPLAN  ·  ${dag}`, W - m, m + 4.5, { align: "right" });
+      doc.text(`Side ${i + 1} av ${totalSider}`, W - m, m + 10.5, { align: "right" });
+      doc.setDrawColor(190, 184, 172); doc.setLineWidth(0.25);
+      doc.line(m, m + 14, W - m, m + 14);
+      // Tegnforklaring nederst
+      const legH = fmt === "a3" ? 20 : 16, legY = H - m - legH;
+      doc.line(m, legY, W - m, legY);
+      const n = telling(a);
+      const kol = (W - 2 * m) / TYPER.length, ik = fmt === "a3" ? 10 : 8;
+      TYPER.forEach((t, j) => {
+        const x = m + j * kol, y = legY + (legH - ik) / 2;
+        doc.addImage(ikoner[t.id], "PNG", x, y, ik, ik);
+        doc.setTextColor(26, 26, 26); doc.setFont("helvetica", "bold"); doc.setFontSize(fmt === "a3" ? 11 : 9);
+        doc.text(t.navn, x + ik + 2.5, y + ik * 0.42);
+        doc.setFont("helvetica", "normal"); doc.setTextColor(95, 95, 95);
+        doc.text(`${n[t.id]} stk`, x + ik + 2.5, y + ik * 0.92);
+      });
+      // Selve tegningen
+      const top = m + 18, bunn = legY - 4, bredde = W - 2 * m, hoyde = bunn - top;
+      const k = Math.min(bredde / a.w, hoyde / a.h);
+      const pw = a.w * k, ph = a.h * k, px = m + (bredde - pw) / 2, py = top + (hoyde - ph) / 2;
+      doc.addImage(komposittBilde(a), "JPEG", px, py, pw, ph, undefined, "FAST");
+      doc.setDrawColor(210, 205, 195); doc.setLineWidth(0.2); doc.rect(px, py, pw, ph);
+    });
+    if (S.ark.length > 1) sammendrag(doc, fmt, tittel, dag, totalSider, ikoner);
+    const blob = doc.output("blob");
+    venter(false);
+    const filnavn = `Elplan – ${tittel}`.replace(/[\\/:*?"<>|]+/g, "-").slice(0, 120) + ".pdf";
+    await lagreFil(blob, filnavn);
+  } catch (err) {
+    console.error(err);
+    venter(false);
+    melding("Klarte ikke å lage PDF-en. Prøv igjen.");
+  }
+}
+function sammendrag(doc, fmt, tittel, dag, totalSider, ikoner) {
+  doc.addPage(fmt, "portrait");
+  const W = doc.internal.pageSize.getWidth();
+  const m = fmt === "a3" ? 14 : 10;
+  doc.setTextColor(26, 26, 26); doc.setFont("helvetica", "bold"); doc.setFontSize(14);
+  doc.text(tittel, m, m + 5);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(95, 95, 95);
+  doc.text("Mengdeliste for alle tegninger", m, m + 10.5);
+  doc.setFontSize(8.5);
+  doc.text(`ELPLAN  ·  ${dag}`, W - m, m + 4.5, { align: "right" });
+  doc.text(`Side ${totalSider} av ${totalSider}`, W - m, m + 10.5, { align: "right" });
+  doc.setDrawColor(190, 184, 172); doc.setLineWidth(0.25); doc.line(m, m + 14, W - m, m + 14);
+  const forste = 70, kol = (W - 2 * m - forste) / TYPER.length;
+  let y = m + 26;
+  doc.setFontSize(9);
+  TYPER.forEach((t, j) => {
+    const x = m + forste + j * kol;
+    doc.addImage(ikoner[t.id], "PNG", x + kol / 2 - 3.5, y - 9, 7, 7);
+    doc.setFont("helvetica", "bold"); doc.setTextColor(26, 26, 26);
+    doc.text(t.navn, x + kol / 2, y + 2, { align: "center" });
+  });
+  y += 5; doc.line(m, y, W - m, y);
+  const sum = {}; TYPER.forEach(t => sum[t.id] = 0);
+  doc.setFont("helvetica", "normal");
+  for (const a of S.ark) {
+    y += 8;
+    if (y > doc.internal.pageSize.getHeight() - m - 20) { doc.addPage(fmt, "portrait"); y = m + 10; }
+    const n = telling(a);
+    doc.setTextColor(26, 26, 26);
+    doc.text(doc.splitTextToSize(a.navn || "Tegning", forste - 4)[0], m, y);
+    TYPER.forEach((t, j) => {
+      sum[t.id] += n[t.id];
+      doc.text(String(n[t.id]), m + forste + j * kol + kol / 2, y, { align: "center" });
+    });
+    doc.setDrawColor(225, 220, 210); doc.line(m, y + 3, W - m, y + 3);
+  }
+  y += 10;
+  doc.setFont("helvetica", "bold");
+  doc.text("Totalt", m, y);
+  TYPER.forEach((t, j) => doc.text(String(sum[t.id]), m + forste + j * kol + kol / 2, y, { align: "center" }));
+}
+async function lagreFil(blob, filnavn) {
+  // Inne i Claude må filen gå via plattformens lagring; ellers vanlig nedlasting.
+  if (window.claude && typeof window.claude.use === "function") {
+    let dl = null;
+    try { dl = await window.claude.use("downloads"); } catch { dl = null; }
+    if (dl) {
+      try { await dl.save({ filename: filnavn, data: blob }); melding("PDF-en er lagret"); }
+      catch (e) { melding(e && e.code === "declined" ? "Lagringen ble avbrutt" : "Klarte ikke å lagre PDF-en"); }
+      return;
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const lenke = document.createElement("a");
+  lenke.href = url; lenke.download = filnavn;
+  document.body.append(lenke); lenke.click(); lenke.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  melding("PDF-en er lastet ned");
+}
+$("knapp-pdf").addEventListener("click", eksporter);
+
+/* ---------- Eksempeltegning ---------- */
+function lagEksempel() {
+  const W = 2000, H = 1300;
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const g = c.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  g.strokeStyle = "#1A1A1A"; g.lineCap = "square";
+  const vegg = (x1, y1, x2, y2, t) => { g.lineWidth = t; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke(); };
+  const Y = 18, I = 10;
+  // Yttervegger med åpninger for vinduer og inngangsdør
+  vegg(100, 100, 300, 100, Y); vegg(550, 100, 1350, 100, Y); vegg(1700, 100, 1900, 100, Y);
+  vegg(1900, 100, 1900, 400, Y); vegg(1900, 800, 1900, 1200, Y);
+  vegg(1900, 1200, 990, 1200, Y); vegg(880, 1200, 100, 1200, Y);
+  vegg(100, 1200, 100, 1000, Y); vegg(100, 800, 100, 100, Y);
+  // Vinduer
+  g.lineWidth = 3; g.lineCap = "butt";
+  const vindu = (x1, y1, x2, y2) => {
+    const horis = y1 === y2, o = 6;
+    g.beginPath();
+    if (horis) { g.moveTo(x1, y1 - o); g.lineTo(x2, y2 - o); g.moveTo(x1, y1 + o); g.lineTo(x2, y2 + o); }
+    else { g.moveTo(x1 - o, y1); g.lineTo(x2 - o, y2); g.moveTo(x1 + o, y1); g.lineTo(x2 + o, y2); }
+    g.stroke();
+  };
+  vindu(300, 100, 550, 100); vindu(1350, 100, 1700, 100); vindu(1900, 400, 1900, 800); vindu(100, 800, 100, 1000);
+  g.lineCap = "square";
+  // Innervegger
+  vegg(750, 100, 750, 560, I); vegg(750, 640, 750, 680, I); vegg(750, 770, 750, 1200, I);
+  vegg(100, 650, 750, 650, I);
+  vegg(750, 550, 900, 550, I); vegg(990, 550, 1150, 550, I);
+  vegg(1150, 100, 1150, 700, I); vegg(1150, 1000, 1150, 1200, I);
+  // Dørslag
+  g.lineWidth = 2;
+  const dor = (hx, hy, r, a1, a2, lx, ly) => {
+    g.beginPath(); g.arc(hx, hy, r, a1, a2); g.stroke();
+    g.beginPath(); g.moveTo(hx, hy); g.lineTo(lx, ly); g.stroke();
+  };
+  dor(750, 640, 80, Math.PI, Math.PI * 1.5, 670, 640);
+  dor(750, 680, 90, Math.PI / 2, Math.PI, 750, 770);
+  dor(990, 550, 90, Math.PI, Math.PI * 1.5, 990, 460);
+  dor(990, 1200, 110, Math.PI, Math.PI * 1.5, 990, 1090);
+  // Kjøkken og bad
+  g.lineWidth = 2.5;
+  g.strokeRect(1165, 112, 470, 62);
+  g.beginPath(); g.ellipse(1290, 143, 34, 20, 0, 0, Math.PI * 2); g.stroke();
+  for (const [cx, cy] of [[1470, 130], [1520, 130], [1470, 158], [1520, 158]]) { g.beginPath(); g.arc(cx, cy, 11, 0, Math.PI * 2); g.stroke(); }
+  g.strokeRect(1165, 112, 62, 300);
+  g.strokeRect(1000, 112, 138, 160); g.beginPath(); g.moveTo(1000, 112); g.lineTo(1138, 272); g.stroke();
+  g.beginPath(); g.ellipse(800, 200, 24, 34, 0, 0, Math.PI * 2); g.stroke(); g.strokeRect(770, 112, 60, 40);
+  g.strokeRect(770, 400, 150, 70); g.beginPath(); g.ellipse(845, 435, 45, 22, 0, 0, Math.PI * 2); g.stroke();
+  // Senger
+  g.lineWidth = 2;
+  g.strokeRect(340, 140, 300, 400); g.strokeRect(355, 150, 125, 70); g.strokeRect(500, 150, 125, 70);
+  g.strokeRect(260, 820, 220, 340); g.strokeRect(290, 832, 160, 70);
+  // Sofa og bord i stua
+  g.strokeRect(1450, 860, 380, 110); g.strokeRect(1450, 860, 380, 30);
+  g.strokeRect(1560, 680, 170, 110);
+  g.strokeRect(1250, 470, 260, 150);
+  // Romnavn
+  g.fillStyle = "#1A1A1A"; g.textAlign = "center";
+  const rom = (navn, m2, x, y) => {
+    g.font = "600 34px Helvetica, Arial, sans-serif"; g.fillText(navn, x, y);
+    g.font = "26px Helvetica, Arial, sans-serif"; g.fillStyle = "#555"; g.fillText(m2, x, y + 36); g.fillStyle = "#1A1A1A";
+  };
+  rom("Soverom 1", "11,4 m²", 425, 600);
+  rom("Soverom 2", "10,8 m²", 590, 780);
+  rom("Bad", "5,2 m²", 1010, 360);
+  rom("Gang", "7,1 m²", 950, 840);
+  rom("Stue og kjøkken", "31,6 m²", 1580, 380);
+  g.textAlign = "left"; g.font = "22px Helvetica, Arial, sans-serif"; g.fillStyle = "#777";
+  g.fillText("EKSEMPEL · PLAN 1:50", 100, 1260);
+  return { src: c.toDataURL("image/png"), w: W, h: H };
+}
+function eksempelSymboler() {
+  const s = (t, x, y, rot = 0) => ({ id: uid(), t, x, y, rot });
+  return [
+    s("spot", 1330, 260), s("spot", 1530, 260), s("spot", 1730, 260),
+    s("spot", 1330, 560), s("spot", 1530, 560), s("spot", 1730, 560),
+    s("spot", 880, 230), s("spot", 1060, 470),
+    s("lampe", 1640, 1050), s("lampe", 950, 980),
+    s("lampe", 425, 380), s("lampe", 400, 930),
+    s("stikk", 1880, 900, 270), s("stikk", 1400, 1180), s("stikk", 1700, 1180),
+    s("stikk", 1180, 450, 90), s("stikk", 1600, 194, 180),
+    s("stikk", 320, 120, 180), s("stikk", 660, 120, 180), s("stikk", 120, 1100, 90),
+    s("termo", 1100, 600), s("termo", 1210, 760),
+    s("dimmer", 1180, 1040), s("dimmer", 715, 600),
+  ];
+}
+
+/* ---------- Oppstart ---------- */
+async function start() {
+  byggVerktoy();
+  new ResizeObserver(() => { const forrige = bw; storrelse(); if (!forrige) tilpass(); }).observe(flate);
+  const lagret = await lager.hent(NOKKEL);
+  if (lagret && Array.isArray(lagret.ark)) {
+    S = Object.assign({ prosjekt: "", papir: "A4", aktiv: null, ark: [] }, lagret);
+    if (!S.ark.find(a => a.id === S.aktiv)) S.aktiv = S.ark[0]?.id || null;
+  } else {
+    const e = lagEksempel();
+    const a = { id: uid(), navn: "Eksempel – 3-roms", src: e.src, w: e.w, h: e.h, str: 1, sym: eksempelSymboler(), eksempel: true };
+    S = { prosjekt: "", papir: "A4", aktiv: a.id, ark: [a] };
+  }
+  await Promise.all(S.ark.map(lastBilde));
+  storrelse(); tilpass(); oppdaterAlt();
+}
+window.addEventListener("resize", () => oppdaterHint());
+start();
+})();
+</script>
+</body>
+</html>
