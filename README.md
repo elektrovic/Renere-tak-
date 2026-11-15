@@ -1,6 +1,6 @@
 # Halland Gruppen – kodelager
 
-Dette lageret inneholder to selvstendige ting:
+Dette lageret inneholder tre selvstendige ting:
 
 ## 1. Montørappen — `montorapp/`
 
@@ -41,3 +41,13 @@ Alle satser ligger i `PRISER`-objektet øverst i `<script>`-blokken i `index.htm
 | `fasadePerM2` / `fasadeMin` | Fasadevask per m² / minstepris |
 | `steinPerM2` / `steinMin` | Belegningsstein per m² / minstepris |
 | `minstepris` | Total minstepris per oppdrag |
+
+## 3. Elplan — `elplan/`
+
+Last opp plantegninger (PDF, JPG eller PNG), trykk inn spotter, lampepunkt,
+stikkontakter, termostater og dimmere, og eksporter rett til PDF med
+tegnforklaring og antall per symbol. En PDF med flere sider blir én tegning per
+side, og med flere tegninger får PDF-en en mengdeliste til slutt.
+
+Én statisk fil uten byggesteg. Alt lagres lokalt i nettleseren (IndexedDB).
+Nye symboler legges til i `TYPER`-listen øverst i skriptet i `elplan/index.html`.
